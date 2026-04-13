@@ -1,0 +1,3 @@
+claude --model opus --dangerously-skip-permissions
+
+pause
