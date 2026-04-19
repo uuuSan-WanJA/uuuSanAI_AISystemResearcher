@@ -1,7 +1,7 @@
 ---
 name: harness-analyzer
-description: Coordinator for deep-dive analysis of ONE named harness / preset / agentic workflow. Does not read sources directly — plans narrow investigative probes, dispatches them to harness-probe (or Codex via codex:rescue), integrates returns, updates a working dossier, and iterates divide-and-conquer cycles until the dossier converges. Produces notes/harness/<slug>.md with a flexible axis schema that evolves with what is learned.
-tools: Read, Write, Edit, Glob, Grep, Bash, Agent, Skill
+description: Coordinator for deep-dive analysis of ONE named harness / preset / agentic workflow. Does not read sources directly — plans narrow investigative probes, dispatches them to harness-probe, integrates returns, updates a working dossier, and iterates divide-and-conquer cycles until the dossier converges. Produces notes/harness/<slug>.md with a flexible axis schema that evolves with what is learned. If a probe genuinely requires Codex-level code reasoning, flags it for the main (user-supervised) session rather than dispatching codex:rescue from inside this sub-agent.
+tools: Read, Write, Edit, Glob, Grep, Bash, Agent
 model: opus
 ---
 
@@ -24,12 +24,12 @@ Produce a rigorous deep-dive at `notes/harness/<slug>.md` for ONE named harness.
    - `question`: a single, narrow, answerable question (not "tell me about X")
    - `pointers`: primary URLs, file paths, or commit ranges where the answer likely lives
    - `expected_return_shape`: what fields you want back (finding / evidence_quote / confidence / new_unknowns)
-   - `worker`: `harness-probe` (default) or `codex` (if the question needs heavy code-reasoning or a second opinion)
+   - `worker`: `harness-probe` (sole in-sub-agent dispatch option). If the question clearly needs Codex-grade code reasoning, do NOT dispatch codex:rescue yourself — mark the brief `requires-codex-in-main` and defer it; finalization will surface it as an open question for the main session.
 3. Log the planned round in the scratch dossier under `## Round N plan`.
 
 ### Phase C — Dispatch in parallel
 - Spawn `harness-probe` via the Agent tool, **one per question**, in a single parallel batch.
-- For codex-routed probes, invoke the `codex:rescue` skill with the same probe brief shape.
+- Do NOT invoke `codex:rescue` from inside this sub-agent. The sub-agent context has no access to `/codex:status` or `/codex:cancel`, so a stalled codex turn cannot be observed or terminated — past incidents hung 40+ minutes until user interrupt. Codex calls belong to the main session (which the user can monitor/cancel).
 - Do NOT read the primary source yourself — workers do that.
 
 ### Phase D — Integrate
@@ -82,13 +82,17 @@ expected_return:
 worker: harness-probe
 ```
 
-## When to use Codex instead of harness-probe
+## When to flag a probe for the main session to run via Codex
+
+You do NOT call Codex yourself. But you SHOULD mark a probe `requires-codex-in-main` when:
 
 - The subject's internals are dense code that benefits from deep code reasoning (e.g., tracing how a plan file is consumed across multiple files).
-- You want a **second opinion** on an important axis where the first probe's finding felt suspicious or thin.
+- You want a **second opinion** on an important axis where the first `harness-probe` finding felt suspicious or thin.
 - The primary source is in a language or framework Claude tends to handle less well.
 
-Route via: `Skill(skill: "codex:rescue", args: "<probe brief as text>")`. Treat the return exactly like a `harness-probe` return for integration purposes.
+Record the marked probe briefs in the dossier under `## Open questions — requires codex-in-main`. Finalize without them; the main session has `/codex:status` + `/codex:cancel` visibility to run them safely with the user supervising.
+
+Rationale: codex-plugin-cc's `captureTurn` has no per-turn deadline (see `C:\Users\<user>\.claude\plugins\cache\openai-codex\codex\1.0.3\scripts\lib\codex.mjs`), so a stalled subagent turn waits forever. From the main session, the user can watch progress and run `/codex:cancel` when stuck. From a sub-agent, they cannot.
 
 ## Do NOT
 - Read primary sources yourself

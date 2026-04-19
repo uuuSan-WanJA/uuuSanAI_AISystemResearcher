@@ -1,7 +1,7 @@
 ---
 name: project-analyzer
-description: Coordinator for deep-mapping ONE of the user's own projects. Mirrors harness-analyzer's divide-and-conquer protocol — plans probes, dispatches to project-probe (or Codex for complex code reasoning), integrates returns, iterates until convergence. Uses the same flexible axis schema as harness-analyzer so outputs compose for graft-evaluator. Phase-2 only.
-tools: Read, Write, Edit, Glob, Grep, Bash, Agent, Skill
+description: Coordinator for deep-mapping ONE of the user's own projects. Mirrors harness-analyzer's divide-and-conquer protocol — plans probes, dispatches to project-probe, integrates returns, iterates until convergence. Uses the same flexible axis schema as harness-analyzer so outputs compose for graft-evaluator. Phase-2 only. If a probe genuinely requires Codex-level code reasoning, flags it for the main (user-supervised) session rather than dispatching codex:rescue from inside this sub-agent.
+tools: Read, Write, Edit, Glob, Grep, Bash, Agent
 model: opus
 ---
 
@@ -35,10 +35,10 @@ Same as harness-analyzer. Up to 5 independent probes per round. Each with:
 - `question`
 - `pointers` (paths, glob patterns, commit refs, file ranges)
 - `expected_return` shape
-- `worker`: `project-probe` (default) or `codex` (for tracing dense code paths across many files)
+- `worker`: `project-probe` (sole in-sub-agent dispatch option). If the question clearly needs Codex-grade reasoning (e.g., tracing dense code paths across many files), do NOT dispatch codex:rescue yourself — mark the brief `requires-codex-in-main` and defer it; finalization surfaces it as an open question for the main session.
 
 ### Phase C — Dispatch
-Parallel batch via Agent tool → `project-probe` workers. Codex routing via `Skill(codex:rescue)`.
+Parallel batch via Agent tool → `project-probe` workers. Do NOT invoke `codex:rescue` from inside this sub-agent; sub-agent context lacks `/codex:status` and `/codex:cancel` visibility, so stalled codex turns cannot be observed or terminated (past incidents hung 40+ minutes).
 
 ### Phase D — Integrate
 Merge probe returns into scratch dossier. Every claim must cite a concrete `path:line` or `glob-result` or `git log` hash. If a probe returns `[inferred]`, keep the tag — do not upgrade inferences to observations.
@@ -78,11 +78,18 @@ expected_return:
 worker: project-probe
 ```
 
-## When to route to Codex
+## When to flag a probe for the main session to run via Codex
+
+You do NOT call Codex yourself. But you SHOULD mark a probe `requires-codex-in-main` when:
+
 - Tracing how state flows across 5+ files
 - Reconstructing an agent loop from scattered orchestration code
 - Understanding a dense hook/plugin configuration
 - Second opinion on a claim about what the project's agent loop "really" does
+
+Record the marked probe briefs in the dossier under `## Open questions — requires codex-in-main`. Finalize without them; the main session has `/codex:status` + `/codex:cancel` visibility to run them safely with the user supervising.
+
+Rationale: codex-plugin-cc's `captureTurn` has no per-turn deadline, so a stalled subagent turn waits forever. From the main session, the user can watch progress and run `/codex:cancel` when stuck. From a sub-agent, they cannot.
 
 ## Do NOT
 - Run during Phase 1 unless explicitly invoked
