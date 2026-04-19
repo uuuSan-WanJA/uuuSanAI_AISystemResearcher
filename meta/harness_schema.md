@@ -346,5 +346,53 @@ Things still unknown after the analysis cycle finishes.
 - **축 K**: 의미 있는 에이전트 역할 분해 없음. named persona 개념 부재. 카운트 무변화.
 - **축 L**: 패턴 자동 추출 루프 없음. openwork는 그냥 OpenCode surface를 노출.
 
+### V. Mode-as-(prompt + tool-allowlist) declarative bundle (새 후보 — 축 C refinement/subtype)
+- **Proposed by**: Kilo Code deep-dive (2026-04-19)
+- **Rationale**: 모든 기존 C-축 하네스(Superpowers/GSD/Ralph/CE/OMC/Ouroboros/ECC/gstack/OMX/OMC/OMO/Cline)는 모드별 역할 제약을 **프롬프트 본문의 prose** — "you are an X, do not do Y" — 로 표현하고, 모델의 복종에 의존함. Kilo는 모드 정의 자체를 `{roleDefinition, customInstructions, groups: ["read", ["edit", {fileRegex: "\\.md$"}], "browser", "mcp"]}` 튜플로 **스키마 선언**하고, **tool dispatcher 레벨에서 강제**. Architect 모드의 `edit.fileRegex = \\.md$` 제한은 LLM이 따르는지가 아니라 런타임 레벨에서 non-markdown edit가 아예 fail됨. 축 Q(OMO의 category × skill × persona orthogonality)와 쌍대 — OMO는 분리해서 런타임 조합, Kilo는 한 원자로 묶음.
+- **Proposed form**: "모드 정의가 (a) prose-only (prompt 내부 자연어) 인가, (b) 스키마-선언적(tool allow-list, per-tool parametric restrictions, regex-scoped edit) 인가? 스키마적이면 어떤 제한 vocabulary를 지원하는가(tool group / per-file regex / per-command glob / model-id override)? 강제는 prompt 신뢰에 맡기는가 dispatcher에 wire되는가?"
+- **Status**: Kilo 1회 강한 사례. ECC 47-agent과 Compound Engineering 26-agent가 YAML frontmatter로 tool allowlist를 선언하는지 재확인 필요 — 그렇다면 즉시 2회+ 도달 가능.
+- **Promotion threshold**: 2개 이상 독립 사용.
+- **포인터**: `notes/harness/kilo-code.md` §5, §11 P1.
+
+### W. Multi-tier server-routed model auto-selection keyed by active mode (새 후보)
+- **Proposed by**: Kilo Code deep-dive (2026-04-19)
+- **Rationale**: Kilo의 `kilo-auto/{frontier,balanced,free,small}` 4-tier 시스템 + gateway-side `(tier, active_mode) → concrete_model_id` 매핑 + 서버사이드 매핑 업데이트(클라이언트 재배포 없이 free model churn 흡수) + `small` internal-only tier의 positive-balance-fallback-to-free 정책은 코퍼스에서 새로운 종. Compound Engineering이 "claude-opus for reviewer / claude-sonnet for worker" 같은 **per-agent hardcode**를 쓰고, Cline v3.58이 subagent별 `modelId` override를 허용하지만 **클라이언트 pin**. Kilo는 (a) server-owned, (b) mode-triggered(agent-triggered 아님), (c) 비용 티어 매개변수화 세 차원에서 다름. OMO의 category 시스템이 per-agent model 결정을 하지만 여전히 클라이언트 사이드.
+- **Proposed form**: "하네스가 '사용자가 고르는 capability tier'와 '이 요청이 실제 도는 구체 model ID'를 분리하는가? (a) 매핑 함수의 위치: 클라이언트 핀 / 서버 라우터 / 둘 다, (b) 라우팅 키: active mode / task category / subagent identity / request cost budget, (c) 매핑 업데이트 투명성(클라이언트 재배포 필요 vs 서버 즉시), (d) fallback 정책(balance zero → free tier) 존재 여부."
+- **Status**: Kilo 1회 강한 사례. OMO의 category system이 클라이언트-사이드 near-twin. 서버 라우팅이 추가된 2번째 케이스가 나오면 승격.
+- **Promotion threshold**: 2개 이상 독립 사용.
+- **포인터**: `notes/harness/kilo-code.md` §8 (Auto-model routing), §11 P4.
+
+### Δ1 refinement (Kilo Code, 2026-04-19) — 5th 서브타입 추가 권고
+- Kilo는 기존 4-branch subtypology 어느 것에도 깔끔히 맞지 않음:
+  - (a) hand-reinvention (OMC↔OMX): N/A (Kilo는 hand-reinvent 하지 않음).
+  - (b) single-home + inbound (OMO): N/A (Kilo는 다중 substrate에 배포).
+  - (c) core + adapter protocol (Cline v3.58): N/A (Kilo는 개방 프로토콜 정의 안 함 — SDK는 내부용).
+  - (d) product-wrapper consumer (openwork): N/A (Kilo는 substrate를 래핑하지 않음, **벤더링**).
+  - **(e) consolidator-fork (Kilo Code)**: 단일 upstream(OpenCode)을 monorepo로 벤더링(`packages/opencode/`)하고, 다른 upstream들(Roo Code, Cline)의 설정 파일명(`.roorules`, `.clinerules`)을 호환성 shim으로 유지해 사용자 흡수. 하나의 포크된 core에서 4+ 클라이언트 서피스(VS Code / JetBrains / TUI / headless CLI / Cloud)로 통일된 배포.
+- **권고**: Δ1을 5-branch subtypology로 확장. Kilo의 기여는 "consolidator-fork라는 새 포지션 — 한 upstream 전량 벤더링 + 다른 upstreams로부터의 호환성 shim 사용자 캡처 + forked core에서 단일 출발점으로 multi-surface 배포"를 명시화.
+- **포인터**: `notes/harness/kilo-code.md` §1 (CLI fork chain), §4b (`.roorules` / `.clinerules` fallback), §8 (multi-surface distribution).
+
+### 축 C 재사용 확인 (Kilo Code, 2026-04-19)
+- Kilo의 6개 native modes(architect/code/ask/debug/orchestrator/review) + user 정의 `.kilo/agents/*.md` + org 정의 Postgres-backed custom modes + primary/subagent/all 3-way mode-use trichotomy는 축 C("mode splitting")의 **12번째 독립 사용** (기존 11에 이어). **승격 확정 최강 유지**.
+
+### 축 F (Kilo Code는 재사용 NO)
+- Kilo는 `skill` 툴을 tool surface에 포함하지만 **오피니어네이티드 스킬 라이브러리를 ship하지 않음**. Cline/openwork와 동일 판정. 축 F의 "propose/ship curated library" 기준 미충족. 카운트 **무변화**.
+
+### 축 G 재사용 확인 (Kilo Code, 2026-04-19)
+- Kilo의 `kilo serve` HTTP+SSE 계약 + `kilo.jsonc` permission tree + per-command bash glob allow-list + `--auto` YOLO escape hatch + `external_directory` `ask` default + `permission.task` delegation graph 제한 + Kilo Cloud의 Cloudflare Workers / Fly.io / Docker sandbox 레이어 + KiloClaw multi-tenant per-user 머신 + Gas Town 5초 reconciler 루프는 축 G("execution environment as constraint surface")의 **7번째 독립 사용** (GSD/Ouroboros/OMX-OMC/OMO/Cline/openwork에 이어). 승격 권고 최강.
+
+### 축 K 재사용 확인 (Kilo Code, 2026-04-19)
+- Kilo의 6개 named 모드 각각이 명시된 전문가 역할(technical leader / software engineer / technical assistant / software debugger / workflow orchestrator / code reviewer)을 1차 제약 대상으로 선언 + org 커스텀 모드 템플릿(DevOps / User Story Creator / Project Research) + `.kilo/agents/*.md` 파일명-슬러그 규약은 축 K("role perspective as constraint surface")의 **7번째 독립 사용** (gstack/ECC/CE/revfactory-harness/OMX-OMC/OMO에 이어). 승격 권고 최강.
+
+### 축 T 재사용 확인 ★ PROMOTION THRESHOLD REACHED (Kilo Code, 2026-04-19)
+- Kilo Cloud는 코퍼스에서 **out-of-loop productization surface** 최대 구현: Kilo Gateway(auth/router/catalog/billing) + Cloud Agent(Cloudflare Worker + Docker sandbox) + KiloClaw(Fly.io multi-tenant) + Gas Town(Mayor/Polecat/Refinery/Triage 계층 + 5초 reconciler) + Code Review 서비스(GitHub webhook → auto-review) + Auto Triage(이슈 분류 + vector similarity dedup) + Kilo Bot(GitHub/GitLab mention → Cloud Agent) + App Builder + Webhook Agent Ingest + AI Attribution + Session Ingest. 클라이언트 서피스: VS Code / JetBrains / TUI / `kilo run --auto` headless CLI / Cloud 대시보드. openwork의 2번째 use에 이어 **축 T의 2번째 독립 사용 확인 → 승격 권고 충족**. 다음 schema bump에서 T를 메인 축으로 승격 강력 권고.
+
+### Δ5 (Kilo Code는 provisional REFUTE)
+- Kilo는 `kilo run --auto` (CI headless) 와 `kilo serve` (HTTP+SSE) 제공. 그러나 이번 라운드에서 Cline의 `ui_messages.json`에 상응하는 **typed JSON stdout contract**를 primary source에서 확인하지 못함. shell pipe composition 문서화도 발견되지 않음. Kilo는 headless capability를 제공하지만 Δ5의 핵심인 "first-class output contract로 승격" 증거 부재. **잠정 refute** — 2회 카운트 증가 안 함. Δ5는 Cline 단독 강사례 유지. (후속 라운드에서 `packages/opencode/src/` 런타임 검토로 upgrade 가능.)
+
+### 축 U (Kilo Code는 약 2nd use)
+- Kilo의 new-platform architecture에서 **모든 tool dispatch가 `kilo serve` HTTP 엔진을 경유** — VS Code extension은 thin client. write-path가 단일 authoritative 서비스(`kilo serve`)를 통과하도록 구조적으로 wire됨. 다만 openwork처럼 "쓰기는 서버, 셸은 fallback" 같은 **명시적 단일 규칙**으로 문서화되어 있지 않음 — architecture index에 암묵적. **약한 2번째 사례**. 축 U 정식 승격은 3번째 강한 사례 대기.
+- **포인터**: `notes/harness/kilo-code.md` §3b (new platform), §8 (architecture index).
+
 ## Retired axes
 (Empty.)
