@@ -268,6 +268,29 @@ Things still unknown after the analysis cycle finishes.
 - **축 Δ2 (Consensus planning as execution gate)** — OMO의 Prometheus는 opt-in formal planner (`@plan` / Tab). ultrawork keyword는 prompt-shape discipline gate (CAPS + "UNACCEPTABLE" violation table), auto-redirect 없음. **Δ2 refined**: gate 형태가 (a) lexical heuristic + redirect (OMC), (b) numeric threshold + qualitative readiness (Ouroboros, OMC deep-interview), (c) prompt-shape discipline + opt-in formal planner (OMO) 세 갈래로 분화. 축 D의 하위타입으로 계속 유지.
 - **축 Δ3 (Stage handoff as RPC protocol)** — OMO의 `/handoff`는 **single-session context compaction**이지 stage-to-stage RPC 아님. 사용자가 output을 copy-paste해서 새 세션 시작하는 수동 artifact. **OMO does NOT count as 2nd use**. Δ3 promotion threshold 미달 유지 (OMC 단독 + GSD near-match). 다른 harness에서 2+ 확인 필요.
 
+### Cline v3.58 partial support/refutation summary for earlier candidates (2026-04-19)
+- **축 Δ1 (Substrate feature-gap exploitation)** — Cline이 **3번째 패턴**을 도입하여 축 refine 권고. OMC↔OMX의 "per-host hand-reinvention"과 OMO의 "single-substrate + inbound loaders"에 이어, Cline은 **"core + adapter protocol (ACP)"** 패턴을 사용. 하나의 TypeScript core + Agent Client Protocol 공개 표준으로 VS Code / JetBrains / Zed / Neovim / CLI / Cursor 6개 substrate에 배포. **Δ1 축을 3-branch 서브타이폴로지로 재구성 권고**: (a) hand-reinvention, (b) single-home + inbound, (c) core + adapter.
+- **축 Δ2 (Consensus planning as execution gate)** — Cline의 Plan Mode + `/deep-planning`은 **user-triggered opt-in**이지 detector-triggered redirect 아님. OMC/OMX `$ralplan`과 달리 underspecified 감지 로직 없음. **Δ2 refuted for Cline** — OMC/OMX 단독 강사례 유지.
+- **축 Δ3 (Stage handoff as RPC protocol)** — Cline 서브에이전트는 stage-to-stage handoff 아님 (main → parallel read-only workers → report strings → main, 단일 fan-out). **N/A**. Δ3 카운트 무변화.
+- **축 Δ4 (Category × Skill × Persona orthogonality)** — Cline 서브에이전트는 single-role (read-only researcher) with optional per-subagent `modelId` + skills. OMO의 3차원 직교 matrix와 **다른 shape**. Plan mode model ≠ Act mode model이 2차원 assignment의 최대치. **Δ4 refuted for Cline** — OMO 단독 강사례 유지.
+
+### 축 C 재사용 확인 (Cline v3.58, 2026-04-19, 약)
+- Cline의 Plan/Act mode + `/deep-planning` 4-step (Silent Investigation → Discussion → Plan Creation → Task Creation)은 축 C("mode splitting")의 **11번째 사용 (약)**. "약"인 이유: Cline은 대부분의 workflow를 slash-command bundle로 ship하지 않음 (Superpowers/GSD/gstack/ECC/CE와 달리). Plan/Act 토글 + `/deep-planning` 하나가 주요 모드 분할. 승격 확정 최강 유지, 카운트만 증가.
+
+### 축 F (Cline은 재사용 NO)
+- Cline은 Skills를 **메커니즘**으로 탑재 (SKILL.md 포맷, progressive disclosure, YAML frontmatter, `.cline/skills/` 디스커버리)하지만 **오피니어네이티드 스킬 라이브러리를 함께 ship하지 않음**. Superpowers/OMO/OMC/gstack/ECC/CE가 "플러그인 + 큐레이티드 스킬 번들"인 것과 달리 Cline은 "플랫폼 only". 축 F의 카운트에 포함하지 **않음** — 축 F는 "discipline-layer convention을 **제공**하는가"가 아니라 "**제안/ship**하는가"에 대한 것이었음. 이 구분을 명시적으로 기록.
+
+### 축 G 재사용 확인 (Cline v3.58, 2026-04-19)
+- Cline의 8-event hook lifecycle (TaskStart/Resume/Cancel/Complete/PreToolUse/PostToolUse/UserPromptSubmit/PreCompact) + global-before-workspace 실행 순서 + `cancel: true` 반환으로 차단 + `CLINE_COMMAND_PERMISSIONS` 환경변수 deterministic allowlist 레이어 + `requires_approval` 모델-태그 메커니즘은 축 G("execution environment as constraint surface")의 **5번째 독립 사용** (GSD/Ouroboros/OMX-OMC/OMO에 이어). 승격 권고 강화. Cline 특유 기여: policy를 agent-prompt가 아닌 **executable script + JSON stdin/stdout contract**로 외부화.
+
+### Δ5 (신규 후보) — Headless-mode-as-first-class output contract
+- **Proposed by**: Cline v3.58 deep-dive (2026-04-19)
+- **Rationale**: Cline CLI 2.0은 non-interactive execution을 **typed output contract**로 취급 — auto mode-detection (TTY/pipe/flag), `--json` 출력이 `ui_messages.json`과 동일 schema(`{type: "ask"|"say", text, ts, reasoning?, partial?}`), shell pipe composition (`git diff | cline -y "x" | cline -y "y"`)을 1급 패턴으로 문서화. Ralph의 bash-loop-over-prompt(입력 계약만, 출력 계약 없음)와 GSD의 file-based state(pipe 불가)와 구별.
+- **Proposed form**: "하네스가 headless/non-interactive 실행을 1급 output contract로 취급하는가? (a) 모드 스위치 트리거(flag / TTY / pipe / all) (b) 출력 포맷 보장(plain text / JSON schema / both) (c) chain composition 문서화 여부 (d) exit 계약(complete 시 자동 종료 vs long-running)."
+- **Status**: Cline 단독 강사례. GSD batch commands가 약한 near-match. Compound Engineering의 `/lfg`는 pipeable 아님. 2번째 independent case 대기.
+- **Promotion threshold**: 2개 이상 독립 사용.
+- **포인터**: `notes/harness/cline-v3-58.md` §5 (prompt strategy), §11 P2 (primitive).
+
 ### 축 C 재사용 확인 (OMO, 2026-04-19)
 - OMO의 3-layer orchestration (Planning/Execution/Worker) × 8 categories × 11 agents × N skills 제품 공간 + 3 modes (simple/ultrawork/prometheus) + `/ralph-loop` vs `/ulw-loop` vs `/start-work` vs `/handoff` vs `/init-deep` slash-command 분할은 축 C("mode splitting")의 **10번째 독립 사용** (Superpowers/GSD/Ouroboros/Ralph/gstack/ECC/CE/revfactory-harness/OMX-OMC에 이어). **승격 확정 최강 유지**.
 
