@@ -194,5 +194,94 @@ Things still unknown after the analysis cycle finishes.
 - **Status**: 1회 (revfactory-harness). ECC의 `/skill-create`가 약한 사례. 2번째 강한 사례 필요.
 - **Promotion threshold**: 2개 이상 독립 사용.
 
+### N. Substrate feature-gap exploitation (새 후보)
+- **Proposed by**: OMX/OMC deep-dive (2026-04-19)
+- **Rationale**: OMX와 OMC는 동일한 canonical skill vocabulary(`$deep-interview`, `$ralplan`, `$team`, `$ralph`)를 두 개의 서로 다른 substrate에 이식한 자연실험. OMC는 Claude Code의 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` native team 기능을 탑승; OMX는 Codex CLI에 해당 기능이 없어 Rust 런타임(`omx-runtime-core/src/{mailbox,dispatch,authority}.rs`)으로 직접 재구현. 이 "substrate가 제공하지 않는 것을 하네스가 재발명한 부분"이 어느 기존 축에도 깔끔히 담기지 않음. 축 3(Control architecture)과 축 8(Composability) 어디에도 정확히 안 맞음.
+- **Proposed form**: "하네스가 multi-substrate variant으로 존재한다면, 어떤 primitive가 (a) host CLI의 native 기능을 탑승, (b) host가 제공하지 않아 하네스 코드로 재구현, (c) host-exclusive라 한쪽 port에서만 존재하는가. 이 fork 패턴은 시간에 따라 수렴하는가 발산하는가."
+- **Status**: 1회 (OMX/OMC). Ouroboros의 multi-runtime(Claude/Codex/OpenCode) 주장이 2번째 후보. Compound Engineering의 Claude Code → 다른 IDE 변환 레이어도 약한 후보.
+- **Promotion threshold**: 2개 이상 독립 사용.
+- **포인터**: `notes/harness/omx-omc.md` §2, §4 (core evidence), §13 (delta table).
+
+### O. Consensus planning as execution gate (축 D 하위타입)
+- **Proposed by**: OMX/OMC deep-dive (2026-04-19)
+- **Rationale**: OMX/OMC의 `$ralplan`은 축 D("gate mechanism syntax")의 특수한 변형 — Superpowers `<HARD-GATE>`, Ouroboros 수치 임계값, Ralph CAPS 호통은 모두 **실행 *중*의 진전**을 차단하는 게이트. Ralplan의 Pre-Execution Gate는 **실행 *진입*을 차단**하고 consensus planning으로 돌려보내는 게이트 — "ralph fix this" 같은 under-specified 프롬프트를 어휘 휴리스틱(file path, camelCase symbol, issue #, test runner, 코드블록, numbered steps ≥ 1 → pass; else redirect)으로 감지해 강제 우회. `force:` / `!` escape hatch까지 명시. 축 D의 자연스러운 서브타입.
+- **Proposed form**: "하네스가 under-specified 실행 요청을 거부하고 specification-first subflow로 redirect하는가. 감지 신호는 무엇인가(어휘 휴리스틱 / LLM classifier / embedding similarity). escape hatch는 무엇인가(`force:`, `!`, explicit skill 호출)."
+- **Status**: OMX/OMC에서 1번째 강한 사례. GSD의 `/gsd-discuss`, Ouroboros interview, Compound Engineering plan 도 잠재적 후보 — 재사용 표시 확보 가능성 높음.
+- **Promotion threshold**: 2개 이상 독립 사용.
+- **포인터**: `notes/harness/omx-omc.md` §3f (ralplan mechanics), §11 (comparative position).
+
+### P. Stage handoff as RPC protocol (축 A refinement)
+- **Proposed by**: OMX/OMC deep-dive (2026-04-19)
+- **Rationale**: OMC의 `.omc/handoffs/<stage-name>.md` 패턴은 stage 간 명시적 RPC 계약 — `Decided / Rejected / Risks / Files / Remaining` 5-필드 10-20줄 마크다운을 **stage 전환 전에** 쓰고, 다음 stage의 에이전트 spawn prompt에 포함. handoff 파일들이 누적되고, 취소 시에도 보존. GSD의 `{PHASE}-{WAVE}-{TYPE}.md` regex 계약보다 더 lightweight하지만 같은 방향 — 파일이 sub-agent 간 RPC 매체. 축 A(iteration-boundary semantics)의 homogeneous loop 버전과 구별되는 heterogeneous-stage 버전.
+- **Proposed form**: "stage 간 handoff가 고정 스키마(필드 / 네이밍 / 저장 경로) 아티팩트로 매개되는가. 다음 stage가 자신의 에이전트를 spawn하기 전에 해당 handoff를 읽는가. handoff 체인은 누적되는가 회전되는가. cancellation 시 보존/삭제 정책은?"
+- **Status**: OMC에서 1번째 강한 사례. GSD phase artifacts가 2번째 후보 — 빠른 2+ 승격 가능성.
+- **Promotion threshold**: 2개 이상 독립 사용.
+- **포인터**: `notes/harness/omx-omc.md` §4c (handoff contract).
+
+### 축 C 재사용 확인 (OMX/OMC, 2026-04-19)
+- OMC의 team-plan/team-prd/team-exec/team-verify/team-fix 5-stage + ralph의 starting/executing/verifying/fixing/complete/failed/cancelled 7-phase + autopilot의 Phase 0–5 (expansion/planning/execution/QA/validation/cleanup)는 축 C("mode splitting")의 **9번째 독립 사용** (Superpowers/GSD/Ouroboros/Ralph/gstack/ECC/CE/revfactory-harness에 이어). **승격 확정 최강 유지**.
+
+### 축 D 재사용 확인 (OMX/OMC, 2026-04-19)
+- OMC/OMX의 `$ralplan` Pre-Execution Gate(위 축 O 참조) + Ralph의 verification floor (STANDARD tier minimum) + deslop pass 강제 + post-deslop regression re-verification 게이트는 축 D("gate mechanism syntax")의 **4번째 독립 사용** (Superpowers/GSD/Ouroboros에 이어). 승격 권고 강화.
+
+### 축 F 재사용 확인 (OMX/OMC, 2026-04-19)
+- OMC의 40개 스킬 + 19개 에이전트 + YAML frontmatter + argument-hint + level + aliases + `<Use_When>` / `<Do_Not_Use_When>` / `<Why_This_Exists>` / `<Execution_Policy>` / `<Steps>` / `<Final_Checklist>` XML-tag 본문 구조는 축 F("skill as unit of discipline")의 **6번째 독립 사용** (Superpowers/gstack/ECC/CE/revfactory-harness에 이어). 승격 권고 최강.
+
+### 축 G 재사용 확인 (OMX/OMC, 2026-04-19)
+- OMX의 `.omx/state/` 경로 계층 + frozen schema 계약(`docs/contracts/ralph-state-contract.md` 등) + session-scope vs root-scope authoritative 규칙 + tmux pane 구분 + Rust runtime authority separation(`authority.rs`)은 축 G("execution environment as constraint surface")의 **3번째 독립 사용** (GSD/Ouroboros에 이어). 승격 권고 강화.
+
+### 축 I 재사용 확인 (OMX/OMC, 2026-04-19)
+- OMX `$deep-interview`의 weighted ambiguity score(intent 0.30 + outcome 0.25 + scope 0.20 + constraints 0.15 + success 0.10) + depth-specific threshold(`--quick` 0.30 / `--standard` 0.20 / `--deep` 0.15) + 정량 게이트 + 정성 readiness gate(Non-goals 명시 + Decision Boundaries 명시 + pressure pass 완료)는 축 I("ambiguity-as-numeric-gate")의 **2번째 독립 사용** (Ouroboros에 이어). Superpowers verification score는 약한 3번째. **축 I 승격 권고 충족**.
+
+### 축 L 재사용 확인 (OMX/OMC, 2026-04-19)
+- OMC의 `/learner` skill(패턴 자동 추출 → `.omc/skills/` YAML frontmatter + triggers) + OMX의 `$autoresearch`(mission-driven validator-gated 루프)는 축 L("instinct learning as harness layer")의 **3번째 독립 사용** (ECC, Compound Engineering에 이어). **축 L 승격 확정 권고**.
+
+### 축 K 재사용 확인 (OMX/OMC, 2026-04-19)
+- OMC의 19개 specialized agents(analyst/architect/code-reviewer/executor/...) + stage-aware routing(team-plan에서는 explore+planner, team-verify에서는 verifier+security-reviewer+code-reviewer, 조건부로 architect/critic)은 축 K("role perspective as constraint surface")의 **5번째 독립 사용** (gstack/ECC/CE/revfactory-harness에 이어). 승격 권고 최강 유지.
+
+### Q. Category × Skill × Persona orthogonality in subagent delegation (새 후보)
+- **Proposed by**: OMO deep-dive (2026-04-19)
+- **Rationale**: OMO의 `task(subagent_type, category, load_skills[], run_in_background)` 호출은 3개 독립 차원을 직교적으로 결합 — **category** (model + temperature + prompt_append 결정), **skill** (tool/MCP 그랜트 + domain knowledge 주입), **persona** (agent identity + tool restriction 정책). 8 categories × 11 agents × N skills 제품 공간을 실제로 88+ 고정 에이전트 정의로 폭발시키지 않고 orthogonal factoring으로 관리. OMC/OMX의 staged pipeline 라우팅(team-plan/prd/exec/verify/fix 각 stage마다 미리 정해진 에이전트 세트)과 구별 — OMO는 delegate 시점 동적 조합. 현재 축 3(control architecture), 축 5(prompt strategy), 축 6(tool surface) 어느 것도 "delegation의 직교 차원 수"를 명시적으로 포착하지 못함.
+- **Proposed form**: "하네스가 subagent 호출을 몇 차원으로 factoring하는가? (a) 1차원 — 단일 agent 선택 (b) 2차원 — agent × skill, agent × category 등 (c) 3차원 — model × skill × persona 직교 조합. 차원 간 독립성이 런타임에서 강제되는가(합법 조합만 허용)? default 정책은 N×M×P 조합 폭발을 어떻게 억제하는가?"
+- **Status**: OMO 1회 강한 사례. ECC, Compound Engineering이 약한 2번째 후보 (agent + skill 2차원). 2+ 확인 후보 빠르게 가능.
+- **Promotion threshold**: 2개 이상 독립 사용.
+- **포인터**: `notes/harness/omo.md` §4c (category system), §4d (built-in skills), Δ4 제안.
+
+### R. Wisdom-accumulation notepad system (새 후보)
+- **Proposed by**: OMO deep-dive (2026-04-19)
+- **Rationale**: OMO Atlas orchestrator의 `.sisyphus/notepads/{plan-name}/{learnings.md, decisions.md, issues.md, verification.md, problems.md}` 5-type 노트패드 — 각 sub-delegation 직후 결과에서 Conventions/Successes/Failures/Gotchas/Commands 추출해 카테고리별 추가. 다음 sub-delegation prompt에 전체 notepad 주입. **orchestrator가 "실행 중 학습한 것"을 type-structured memory로 누적** + 같은 plan 내 subsequent workers에 forward. 축 A(iteration boundary: per-loop reset)도 축 L(instinct learning: cross-session 자동 추출)도 정확히 아닌 **intra-plan cumulative memory during orchestration**. Ralph의 파일-매개 메모리나 GSD의 STATE.md(monolithic), OMC의 `.omc/handoffs/*`(stage-level)와 구별되는 **task-level + field-typed + always-injected**.
+- **Proposed form**: "orchestrator가 한 plan 실행 중 typed notepad 시스템(복수 파일, 고정 카테고리)을 유지하며 모든 subsequent sub-delegation prompt에 자동 주입하는가? (a) field 수와 의미 (b) write-trigger(deterministic post-delegate vs 모델 판단) (c) 범위(per-plan / per-session / cross-plan) (d) deduplication 정책."
+- **Status**: OMO 1회 강한 사례. GSD의 STATE.md가 약한 2번째 (monolithic이지만 같은 지향). Compound Engineering의 `docs/solutions/`는 cross-plan이라 다른 층. 2+ 후보.
+- **Promotion threshold**: 2개 이상 독립 사용.
+- **포인터**: `notes/harness/omo.md` §4m (Atlas + notepads), Δ5 제안.
+
+### S. Authorship-cluster porting patterns (새 후보 — 메타축)
+- **Proposed by**: OMO deep-dive (2026-04-19)
+- **Rationale**: OMO/OMC/OMX 트리오는 **single-ecosystem같지만 실제로는 two-author two-product + bidirectional porting**이 drive하는 진화 패턴. 기존 축 어느 것도 "who ported what from whom and when"을 기록하지 못함. 이 차원은 primitive 추적에 결정적이 됨 — OMC의 `$deep-interview`는 Ouroboros-inspired (cross-ecosystem), OMC의 ralphloop/ultrawork는 OMO-port (intra-cluster), OMC의 OpenClaw는 OMC-origin이 OMO/OMX로 정방향 port — 세 가지 direction이 공존.
+- **Proposed form**: "harness가 다른 harness와의 관계에서 어떤 포지션인가? (a) origin only — 자체 primitive만 생산 (b) port target only — 다른 데서 가져옴만 (c) bidirectional — primitive 양방향 교환 (d) lineage — 명시적 fork/port 선언. 교환되는 primitives는 무엇이고 attribution은 어떻게 유지되는가? git commit message, CHANGELOG, README credits 중 어디서 추적 가능한가?"
+- **Status**: OMO/OMC/OMX 트리오가 1st 강한 case. 다른 multi-harness author 클러스터(만약 존재) 발굴 시 2+ 확인 가능. 현 시점에선 메타-typological axis로 제안.
+- **Promotion threshold**: 2개 이상 독립 클러스터 관찰.
+- **포인터**: `notes/harness/omo.md` §11 (comparative position), §13 (provenance delta table).
+
+### OMO's partial support/refutation summary for earlier candidates
+- **축 Δ1 (Substrate feature-gap exploitation)** — OMO는 single-substrate (OpenCode plugin-only) + Claude Code 인바운드 어댑터. OMX↔OMC의 "same vocab, two substrates" pattern과 다름. **OMO refutes the broader generalization**; Δ1은 OMC↔OMX 특유 case로 유지.
+- **축 Δ2 (Consensus planning as execution gate)** — OMO의 Prometheus는 opt-in formal planner (`@plan` / Tab). ultrawork keyword는 prompt-shape discipline gate (CAPS + "UNACCEPTABLE" violation table), auto-redirect 없음. **Δ2 refined**: gate 형태가 (a) lexical heuristic + redirect (OMC), (b) numeric threshold + qualitative readiness (Ouroboros, OMC deep-interview), (c) prompt-shape discipline + opt-in formal planner (OMO) 세 갈래로 분화. 축 D의 하위타입으로 계속 유지.
+- **축 Δ3 (Stage handoff as RPC protocol)** — OMO의 `/handoff`는 **single-session context compaction**이지 stage-to-stage RPC 아님. 사용자가 output을 copy-paste해서 새 세션 시작하는 수동 artifact. **OMO does NOT count as 2nd use**. Δ3 promotion threshold 미달 유지 (OMC 단독 + GSD near-match). 다른 harness에서 2+ 확인 필요.
+
+### 축 C 재사용 확인 (OMO, 2026-04-19)
+- OMO의 3-layer orchestration (Planning/Execution/Worker) × 8 categories × 11 agents × N skills 제품 공간 + 3 modes (simple/ultrawork/prometheus) + `/ralph-loop` vs `/ulw-loop` vs `/start-work` vs `/handoff` vs `/init-deep` slash-command 분할은 축 C("mode splitting")의 **10번째 독립 사용** (Superpowers/GSD/Ouroboros/Ralph/gstack/ECC/CE/revfactory-harness/OMX-OMC에 이어). **승격 확정 최강 유지**.
+
+### 축 F 재사용 확인 (OMO, 2026-04-19)
+- OMO의 SKILL.md format 채택 (Claude Code 호환 via `claude-code-*-loader`) + built-in skills `src/features/builtin-skills/skills/*.ts` + user-space `.opencode/skills/*/SKILL.md` + skill-embedded MCP + per-skill tool restriction은 축 F("skill as unit of discipline")의 **7번째 독립 사용** (Superpowers/gstack/ECC/CE/revfactory-harness/OMX-OMC에 이어). 승격 권고 최강.
+
+### 축 K 재사용 확인 (OMO, 2026-04-19)
+- OMO의 11 named agents (Sisyphus/Hephaestus/Prometheus/Atlas/Metis/Momus/Oracle/Librarian/Explore/Multimodal-Looker/Sisyphus-Junior) + 각 agent의 명시적 tool restriction (Oracle/Librarian/Explore: read-only, Momus: cannot write/edit/delegate, Atlas: cannot delegate, Sisyphus-Junior: cannot re-delegate) + Greek-mythology persona naming은 축 K("role perspective as constraint surface")의 **6번째 독립 사용** (gstack/ECC/CE/revfactory-harness/OMX-OMC에 이어). 승격 권고 최강 유지.
+
+### 축 G 재사용 확인 (OMO, 2026-04-19)
+- OMO의 Bun-only runtime + per-agent tool restriction allowlist/blocklist + preemptive-compaction 10-hook suite + `/tmp/oh-my-opencode.log` 단일 글로벌 로그 + `.sisyphus/` 디렉터리 계층 + 5 concurrent background agents per model/provider (circuit breaker) + `OMO_DISABLE_POSTHOG` 등 env var 제어는 축 G("execution environment as constraint surface")의 **4번째 독립 사용** (GSD/Ouroboros/OMX-OMC에 이어). 승격 권고 강화.
+
+### 축 L (OMO는 재사용 NO)
+- OMO는 Atlas wisdom notepad(intra-plan)는 있지만 OMC `/learner`, ECC `/skill-create`, CE `/ce:compound`같은 **cross-session 자동 skill 추출** 메커니즘은 **없음**. OMO가 지원하는 건 intra-plan cumulative memory (새 candidate R). 축 L 카운트 증가 안 함. OMC가 OMO에 비해 축 L 측면에서 진화된 후속 — port-then-innovate 패턴.
+
 ## Retired axes
 (Empty.)
