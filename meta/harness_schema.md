@@ -394,5 +394,43 @@ Things still unknown after the analysis cycle finishes.
 - Kilo의 new-platform architecture에서 **모든 tool dispatch가 `kilo serve` HTTP 엔진을 경유** — VS Code extension은 thin client. write-path가 단일 authoritative 서비스(`kilo serve`)를 통과하도록 구조적으로 wire됨. 다만 openwork처럼 "쓰기는 서버, 셸은 fallback" 같은 **명시적 단일 규칙**으로 문서화되어 있지 않음 — architecture index에 암묵적. **약한 2번째 사례**. 축 U 정식 승격은 3번째 강한 사례 대기.
 - **포인터**: `notes/harness/kilo-code.md` §3b (new platform), §8 (architecture index).
 
+### META-tier (새 후보 — 메타축, 즉시 승격 권고)
+- **Proposed by**: Hermes Agent deep-dive (2026-04-19, `notes/agents/hermes.md`)
+- **Rationale**: 코퍼스가 silently tier를 섞고 있음. Harness(호스트 CLI 위 루프 형성자) vs agent-framework(런타임 자체 소유) vs infra-gateway(LLM과 agent 사이 라우팅/게이팅) vs technique(프로덕트 아티팩트 없는 패턴) — 같은 "Control architecture" 축이 tier별로 다른 scope를 가리킴. Frontmatter `tier:` 필드로 disambiguate 필요.
+- **Proposed values**: `harness` | `agent-framework` | `infra-gateway` | `technique`
+- **Proposed form**: "이 분석 대상의 티어는? (harness / agent-framework / infra-gateway / technique). 교차-티어 비교는 다른 축들을 티어-조정된 해석으로 읽어야 함."
+- **Status**: Hermes가 첫 `agent-framework` 엔트리. OpenClaw 예정. 메타 분류축이라 **단일 인스턴스로도 즉시 승격 권고** — 두 번째 인스턴스를 기다리면 축의 목적(교차-티어 혼동 방지)이 무의미해짐.
+- **포인터**: `notes/agents/hermes.md` §13.
+
+### SI-mechanism (새 후보 — Self-improvement subtype, 승격 권고)
+- **Proposed by**: Hermes Agent deep-dive (2026-04-19)
+- **Rationale**: 복수 코퍼스 엔트리가 "self-improvement"를 주장하지만 메커니즘이 non-comparable. 서브타입 축 없이 모두 "improves itself"로 평탄화되면 차이가 보이지 않음.
+- **Proposed values**: `skill-generation` (Hermes) | `self-modifying-code` (razzant/ouroboros 계보) | `weight-update` | `memory-only` | `spec-iteration` (Q00/ouroboros) | `harness-code-search` (AutoAgent)
+- **Proposed form**: "자기 개선 메커니즘이 있다면 서브타입은? (a) 에이전트가 authored durable skills, (b) 자기 코드 재작성, (c) 가중치 업데이트/파인튜닝, (d) generation 없는 memory 누적, (e) user-visible spec 이터레이션, (f) outer-loop harness code 검색. 이 subtype 없이는 메커니즘 비교 불가."
+- **Status**: Hermes(skill-generation) + Q00/Ouroboros(spec-iteration) + Compound Engineering(memory-only 또는 spec-iteration) + AutoAgent(harness-code-search) = **이미 4개 주체가 서로 다른 서브타입으로 구별됨**. 승격 임계 충족, 강력 권고.
+- **포인터**: `notes/agents/hermes.md` §5, §11 (P1).
+
+### DD-gossip (새 후보 — 분산 에이전트 디스커버리)
+- **Proposed by**: Hermes Agent deep-dive (2026-04-19)
+- **Rationale**: Hermes가 코퍼스 첫 mesh-aware 주체 — 레지스트리 없이 peer discovery. 모든 harness-tier 엔트리는 단일 인스턴스/단일 호스트 전제라 이 primitive가 존재하지 않았음.
+- **Proposed form**: "Peer discovery 전제 있는가? 있다면 (a) central registry, (b) well-known URL/DNS, (c) gossip protocol, (d) not applicable. Transport는? Topology는? 무엇이 gossip되는가 (identity / capabilities / state)?"
+- **Status**: 1 subject (Hermes). OpenClaw probe 후 2번째 사례 나오면 승격. 현재는 보류.
+- **포인터**: `notes/agents/hermes.md` §8a, §11 (P4).
+- **⚠️ Caveat**: Hermes의 gossip 주장은 task brief 가설 — primary-source 검증 필요. 검증 전 축 채택 금지.
+
+### ACP-contract (새 후보 — 에이전트 간 프로토콜)
+- **Proposed by**: Hermes Agent deep-dive (2026-04-19)
+- **Rationale**: MCP가 agent-to-tool을 해결. Agent-to-agent는 현재 ad hoc (Letta custom, AutoGen internal RPC, CrewAI Python-only). ACP가 커뮤니티 표준 후보인지 Nous 내부 규약인지 결정적. 어느 쪽이든 축 이름이 있어야 다른 entrant 추적 가능.
+- **Proposed form**: "MCP와 별개로 agent-to-agent 프로토콜을 expose/consume하는가? 있다면: 공개 스펙 URL? 다른 구현자? 메시지 스키마(capability advertisement / task handoff / result return)? transport binding? 버전 posture?"
+- **Status**: 1 subject. OpenClaw probe + 커뮤니티 스캔 대기. 현재 보류.
+- **포인터**: `notes/agents/hermes.md` §8b, §11 (P5).
+- **⚠️ Caveat**: Hermes-OpenClaw ACP 사용은 task brief 가설 — primary-source 검증 필요.
+
+### ⚠️ Hermes deep-dive 환경 제약 기록 (2026-04-19)
+- Hermes sub-agent가 Agent/Task 디스패치 도구 없이 실행 → primary-source 프로브 불가.
+- 기존 `_collected_facts_2026-04-13.md` 엔트리 J만으로 축 일부 채움. 대부분 축은 `requires-codex-in-main` 마킹.
+- 본 schema deltas (META-tier, SI-mechanism, DD-gossip, ACP-contract)는 primary-source 없이도 유효한 **프레임워크 수준 결정** — 코퍼스 분석 해상도 개선이 목적이지 Hermes 세부 검증이 아님.
+- 부모 에이전트는 `notes/agents/hermes.md` §12의 `requires-codex-in-main` 마커에 대해 main thread에서 별도 프로브 라운드 디스패치 필요.
+
 ## Retired axes
 (Empty.)
