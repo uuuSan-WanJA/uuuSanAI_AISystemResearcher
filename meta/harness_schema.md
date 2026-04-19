@@ -306,5 +306,45 @@ Things still unknown after the analysis cycle finishes.
 ### 축 L (OMO는 재사용 NO)
 - OMO는 Atlas wisdom notepad(intra-plan)는 있지만 OMC `/learner`, ECC `/skill-create`, CE `/ce:compound`같은 **cross-session 자동 skill 추출** 메커니즘은 **없음**. OMO가 지원하는 건 intra-plan cumulative memory (새 candidate R). 축 L 카운트 증가 안 함. OMC가 OMO에 비해 축 L 측면에서 진화된 후속 — port-then-innovate 패턴.
 
+### T. Out-of-loop productization surface (새 후보)
+- **Proposed by**: openwork deep-dive (2026-04-19)
+- **Rationale**: 대다수 코퍼스 하네스(Superpowers, GSD, Ralph, Ouroboros, gstack, ECC, CE, OMC, OMX, OMO, Cline)는 **에이전트 루프 *안*에서** 사고와 행동을 조형하는 것이 주 관심사. openwork는 체계적으로 **에이전트 루프 *밖*에서** 무엇이 일어나는가를 제품화한다 — 배포, 서피스 레이어, 팀 채팅 브리지, 감사·승인 중재자, 스코프된 원격 공유, 포터블 워크플로 번들. 기존 축 3/4/5/6(control/state/prompt/tool-surface)은 루프 내부를 다루고, 축 8(composability)은 약한 근사치. "what the harness adds outside the loop" 차원을 포착하지 못함.
+- **Proposed form**: "하네스가 에이전트 루프 바깥에 아티팩트를 추가하는가? (배포 서피스, 채팅 플랫폼 어댑터, 감사·승인 중재자, 스코프된 원격 공유, 내보낼 수 있는 워크플로 번들). 각각에 대해 (a) 외부 서피스 (b) 인증 모델 (c) portability를 가능하게 하는 아티팩트 계약."
+- **Status**: openwork 1st strong case. Open Interpreter desktop + LibreChat + Continue(추측) 2nd 후보. 대부분의 기존 corpus는 해당하지 **않음** — 순수 루프-사이드.
+- **Promotion threshold**: 2개 이상 독립 사용.
+- **포인터**: `notes/harness/openwork.md` §11 P1, §13 table.
+
+### U. Server-routed filesystem mutation policy (새 후보 — 좁은 축)
+- **Proposed by**: openwork deep-dive (2026-04-19)
+- **Rationale**: openwork의 `ARCHITECTURE.md`는 **"쓰기는 서버 경로로, 셸 경로는 fallback"** 단일 규칙으로 permission/approval/audit/reload/remote parity를 한꺼번에 일관화함. Tauri 로컬 FS 호출은 명시적으로 fallback으로 demoted. 축 G("execution environment as constraint surface")와 축 6(tool surface)이 다루지 못하는 **write-path vs read-path 비대칭**과 **"쓰기가 단일 authoritative 서비스를 통과해야 함"**이라는 구체적 architectural rule을 포착함. Cline의 hook system(`PreToolUse`/`PostToolUse`)은 약한 근사치.
+- **Proposed form**: "하네스가 write-path와 read-path를 구별하는가? write가 permission/audit/reload/remote-parity 일관성을 위해 단일 authoritative 서비스를 통과하도록 강제되는가? 대안 write 경로는 명시적으로 fallback으로 demoted되어 있는가?"
+- **Status**: openwork 1st strong case. Cline hook-gated writes 약한 2nd 후보. 축 G로 fold할지 별도 sub-axis로 유지할지 재사용 관찰 후 결정.
+- **Promotion threshold**: 2개 이상 독립 사용.
+- **포인터**: `notes/harness/openwork.md` §4 (filesystem mutation policy verbatim), §11 P2.
+
+### Δ1 refinement (openwork, 2026-04-19) — 4th 서브타입 추가 권고
+- openwork는 기존 3-branch subtypology 어느 것에도 깔끔하게 맞지 않음:
+  - (a) hand-reinvention (OMC↔OMX): substrate가 제공하지 않는 feature를 harness 코드로 재구현. openwork는 OpenCode가 제공하는 것을 재발명하지 않음.
+  - (b) single-home + inbound (OMO): single-substrate 플러그인 + inbound 어댑터. openwork는 플러그인이 아님.
+  - (c) core + adapter protocol (Cline v3.58): TypeScript core + ACP 공개 표준으로 다중 substrate 배포. openwork는 어댑터 프로토콜을 정의하지 않음.
+  - **(d) product-wrapper consumer (openwork)**: 별도 코드베이스가 substrate의 공개 서피스(SDK/CLI/DB)를 소비. 다른 audience(non-tech end-users). 재발명 없이 multi-surface distribution layer 추가.
+- **권고**: Δ1을 4-branch subtypology로 확장. openwork의 기여는 "multi-surface product shell이라는 새로운 포지션이 존재함"을 명시화.
+- **포인터**: `notes/harness/openwork.md` §13.
+
+### Δ5 (headless-mode-as-first-class output contract) — openwork REFUTES
+- **Observed**: openwork는 `openwork-orchestrator` CLI + `--no-tui` 모드 + `openwork serve` 제공. 그러나 (a) JSON 출력 스키마 없음, (b) shell-pipe composition 패턴 문서화 없음, (c) chain composition first-class 아님. openwork의 first-class output은 **SSE events + REST API proxy**지 stdout pipeline이 아님. CLI orchestrator는 "log-only 배포 편의" 포지션.
+- **결과**: Δ5 독립 사용 카운트 **무변화** (Cline 단독 강사례 유지). openwork가 headless capability를 "제공"은 하나 "first-class output contract로 승격"은 안 함 — 이 구분이 Δ5의 핵심.
+- **포인터**: `notes/harness/openwork.md` §13 last paragraph.
+
+### 축 G 재사용 확인 (openwork, 2026-04-19)
+- openwork의 execution environment 제약: (a) 기본 loopback 바인딩(`127.0.0.1`) + 명시적 opt-in으로만 `0.0.0.0` 재바인딩, (b) per-launch random OpenCode 자격증명(셸 히스토리·로그 누출 방지), (c) scoped tokens (owner/collaborator/viewer) + 이중 auth 헤더(`X-OpenWork-Host-Token` legacy + `Authorization: Bearer`), (d) 선택적 Docker / Apple-container 샌드박스 + `~/.config/openwork/sandbox-mount-allowlist.json` 마운트 allowlist, (e) manual 모드 쓰기 approval gate (30s 타임아웃), (f) workspace-scoped server-routed 쓰기. 축 G("execution environment as constraint surface")의 **6번째 독립 사용** (GSD/Ouroboros/OMX-OMC/OMO/Cline에 이어). 승격 권고 최강.
+
+### 축 F / C / A / K / L (openwork는 재사용 NO)
+- **축 F**: openwork는 Skills 메커니즘을 **UI에서 관리**하지만 **오피니어네이티드 스킬 라이브러리는 ship하지 않음** (`.opencode/skills/*`은 모두 contributor-facing: release/debug/primitives-reference). Cline과 동일 구분 기준 — "propose/ship curated library" vs "support the mechanism". 카운트 **무변화**.
+- **축 C**: openwork 자체의 모드 분할 없음. 모드 분할은 OpenCode 사용자 스킬에서 발생. 카운트 무변화.
+- **축 A**: openwork-level iteration loop 없음. OpenCode 루프가 유일한 루프. 카운트 무변화.
+- **축 K**: 의미 있는 에이전트 역할 분해 없음. named persona 개념 부재. 카운트 무변화.
+- **축 L**: 패턴 자동 추출 루프 없음. openwork는 그냥 OpenCode surface를 노출.
+
 ## Retired axes
 (Empty.)
