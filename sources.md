@@ -13,6 +13,9 @@
 - LangChain Blog — blog — agents — candidate
 - r/LocalLLaMA — forum — llm, harness — candidate
 - HN front page (AI tag) — forum — general — candidate
+- Karpathy's gists — https://gist.github.com/karpathy — gist — techniques, knowledge-base — candidate — 2026-04-19 LLM Wiki gist (442a6bf...) 조사로 편입. 추가 gist 발행 시 체크.
+- Michał Nasternak (Medium) — https://michalnasternak.medium.com/ — blog — rag, wiki, production — candidate — LLM Wiki 스케일 하이브리드 글 저자. 프로덕션 RAG 관점의 재정리 유용.
+- Astro-Han/karpathy-llm-wiki — https://github.com/Astro-Han/karpathy-llm-wiki — repo — agent-skills, wiki — candidate — Agent Skills 포장형 구현체. SKILL.md 딥다이브 후보.
 
 ## Dropped
 (없음)
