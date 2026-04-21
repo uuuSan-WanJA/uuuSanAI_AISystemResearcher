@@ -84,13 +84,20 @@ notes/
 - **재수집 필요** (상태 유지): Anthropic Claude Memory 공식 페이지 (404 리다이렉트), ChatGPT Memory FAQ (403), Cognition Devin's Wiki 세부. 상업 메모리 3종 source thin 상태.
 - **Deep-dive 다음 후보 우선순위 (업데이트)**:
   1. ~~Basic Memory~~ → **완료**
-  2. ~~Graphify~~ → **완료** (원래 handoff 에선 대기 항목이었으나 이번 세션에 실행)
-  3. **Cognee** — `remember/recall/forget/improve` 4-op API. `improve` 실제 구현이 semantic lint 2번째 확정 사례가 될지 판정.
-  4. **Letta (MemFS 중심)** — "git-tracked memory" 가 markdown 쪽 수렴 신호인지 확인.
-  5. **Zep/Graphiti** — temporal invalidation (bi-temporal KG) 이 본 지형 단독 축.
-- **공백 영역 실험 후보 (상태 유지)**: curation+KG 조합은 Graphify deep-dive 로 **메우지 못함을 확증**. 이 프로젝트 자체 `notes/` 위에 Graphify 를 실제로 돌려보는 건 여전히 유효한 self-test (Graphify 는 induction 이라 이 프로젝트 corpus 에 돌리면 자동 추출 그래프가 생성됨. curation 된 `notes/` 를 입력으로 induction 하는 경우, 출력이 curated source 에 대한 2차 induction 인 특이 케이스).
-- **후속 카드 후보 (상세화)**: `knowledge-lifecycle-operations` — 3 하위 차원(structural / semantic / incremental-update) × 3 운영(lint / consolidation / forgetting) = 9-cell 매트릭스. 각 cell 별 1+ 사례 확보됨 (primitive 카드의 "관련 primitive 카드" 섹션 참조). Carve-out 시점: cell 별 2+ 사례. Cognee deep-dive 가 트리거 가능성 높음.
+  2. ~~Graphify~~ → **완료**
+  3. ~~Cognee~~ → **완료 (2026-04-21)**. 두 가설 반증: semantic lint 2번째 사례 **미성립** (`memify_pipelines/` 5파일 전부 additive 동사), 축 4 2번째 사례 **미성립** (provenance ≠ confidence). 대신 **새 4번째 분지 "Consolidation + feedback refinement"** 등장.
+  4. **Letta (MemFS 중심)** — "git-tracked memory" + self-editing 피드백이 (a) 축 2 markdown 수렴 2번째 사례, (b) consolidation+feedback 4번째 분지 2번째 사례 후보. **이중 트리거** 가능성으로 다음 우선순위 최상.
+  5. **Zep/Graphiti** — temporal invalidation 이 본 지형 단독 축. semantic lint 2번째 사례 후보이나 "시간축 invalidation ≠ orphan 탐지" 라 조건부.
+  6. **Mem0 또는 Hermes** — 축 4 후보 정찰 (Hermes self-improving loop 에 confidence 가 있는지).
+- **공백 영역 실험 후보 (상태 유지)**: curation+KG 조합은 Graphify deep-dive 로 **메우지 못함을 확증**.
+- **후속 카드 후보 상태**: `knowledge-lifecycle-operations` 카드 **carve-out 여전히 보류**. Cognee deep-dive 로 semantic lint 2번째 사례 트리거가 **무산**됐기 때문. 현재 매트릭스 4분지 × 각 1 사례:
+  - structural lint: Basic Memory (1)
+  - semantic lint: LLM Wiki (1, 2번째 대기)
+  - incremental update: Graphify (1, Basic Memory sync 약한 2번째)
+  - consolidation+feedback: Cognee (1, 새 분지)
+  - 카드 작성 트리거: 어느 한 cell 이 2+ 도달. Letta deep-dive 가 다음 유력 트리거.
 - **Tier 체계 변경 후보**: `skills/` 또는 `cross-cutting/` 신규 tier. Graphify 1사례. `meta/harness_schema.md` META-tier 축에 기록. 2번째 사례 대기.
+- **새로 관찰된 패턴 (후속 카드 후보 2)**: **OSS + 상용 튜너/클라우드 dual-product** — Graphify + Penpax, Cognee + Dreamify. 2사례 확보. 추가 사례(예: Zep OSS + Zep Cloud 등) 확인되면 별도 primitive 카드 후보. 현재는 primitive 카드에 흡수.
 
 ### 분기 3: 횡단 분석 (digest / insight)
 - **"Personal assistant gateways" 축 digest**: OpenClaw (single-user) vs openwork (team) vs Claude Cowork (상업 team) 비교

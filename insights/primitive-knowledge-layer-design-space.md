@@ -1,21 +1,22 @@
 ---
 title: LLM 지식 레이어 설계 공간 — 3축 (builder / storage / timing) primitive
 date: 2026-04-21
-last_updated: 2026-04-21 (deep-dive 2건 반영 — Basic Memory / Graphify)
+last_updated: 2026-04-21 (deep-dive 3건 누적 반영 — Basic Memory / Graphify / Cognee)
 based_on:
   - notes/techniques/karpathy-llm-wiki.md
   - notes/techniques/basic-memory.md
   - notes/techniques/graphify.md
+  - notes/techniques/cognee.md
   - inbox/2026-04-21-graph-rag-survey.md
   - inbox/2026-04-21-memory-pkm-survey.md
   - inbox/2026-04-21-graphify-upstream.md
-confidence: medium-high (16 데이터포인트 중 2건 deep-dive 완료, 나머지 14건 primary docs 스캔)
+confidence: medium-high (17 데이터포인트 중 3건 deep-dive 완료, 나머지 14건 primary docs 스캔)
 tags: [knowledge-layer, memory, rag, wiki, pkm, graph-rag, design-space, primitive, auditability-candidate]
 ---
 
 ## 한 줄 요약
 
-LLM 지식 레이어 설계 공간은 **builder · storage · timing** 3축으로 분해되며, 서베이 14종 + deep-dive 2건(Basic Memory, Graphify)을 통해 **curation + markdown + compile-time** 상한점은 **Karpathy LLM Wiki 단일 표본**으로 축소됐다 — Basic Memory 는 `co-authored + markdown + runtime` 으로 storage 1축만 일치하는 친족일 뿐이고, Graphify 는 `induction + KG + compile-time` 으로 서베이 7종 그래프 RAG 와 동일 좌표에 합류해 **"curation + KG" 조합은 여전히 공백**. Deep-dive 는 추가로 (a) 축 2(storage)가 배타적 값이 아니라 **primary + secondary surfaces 벡터**라는 재해석, (b) Graphify `EXTRACTED/INFERRED/AMBIGUOUS` 3-tier 로 촉발된 **축 4 후보 '감사 가능성(auditability)'**, (c) Lint 연산의 3분지(structural / semantic / incremental-update) 를 드러냈다.
+LLM 지식 레이어 설계 공간은 **builder · storage · timing** 3축으로 분해되며, 서베이 14종 + deep-dive 3건(Basic Memory, Graphify, Cognee)을 통해 **curation + markdown + compile-time** 상한점은 **Karpathy LLM Wiki 단일 표본**으로 축소됐다 — Basic Memory 는 `co-authored + markdown + runtime`(storage 1축 일치), Graphify 는 `induction + KG + compile-time`(그래프 RAG 7종 클러스터 합류), Cognee 는 `induction + graph/vector/relational 3중 + runtime`(그래프 RAG 클러스터 1-hop). Deep-dive 3건이 추가로 드러낸 것: (a) 축 2(storage)는 배타적 값이 아닌 **primary + secondary surfaces 벡터**, (b) **축 4 후보 '감사 가능성'** — Graphify 단일 사례 고정, Cognee `improve` 는 additive enrichment 로 2번째 사례 **미성립**, (c) 운영 프리미티브는 **4분지**(structural lint / semantic lint / incremental update / consolidation+feedback refinement) 로 확장 — Cognee `improve` 가 semantic lint 가 아니라 새 4번째 분지의 1사례임이 `memify_pipelines/` 5파일 동사 분석(apply/consolidate/create/persist — detect/validate/flag 0건)으로 확정.
 
 ---
 
@@ -101,7 +102,23 @@ LLM Wiki 의 "가장 가까운 형제" 는 **단일 점이 아니라 3축 공간
 
 - *Storage 축 다중점유 (축 2 재해석 증거 2)*: HTML + JSON + markdown + Obsidian vault + Neo4j Cypher + MCP stdio + `--wiki` agent-crawlable 까지 **6+ 표면 fan-out**. 단일 추출 결과가 다수 소비자에게 동시 노출되는 아키텍처. primary 는 `graph.json`, secondary 는 사용처에 따라 선택.
 - *Confidence 3-tier = 축 4 후보*: 모든 엣지에 `EXTRACTED(1.0) / INFERRED(0.4–0.9) / AMBIGUOUS(0.1–0.3)` 의무 태깅. skill *Honesty Rules* 섹션: *"Never invent an edge. If unsure, use AMBIGUOUS."* — 추출 결과의 **감사 가능성(auditability)** 을 프레임워크 1등 시민으로 승격한 단일 사례. 서베이 14종 + Basic Memory 중 이런 축을 명시한 경우 없음. **새 축 4 후보 등재, 2번째 사례 대기**.
-- *Lint 3분지*: Graphify 의 `--update`·`--watch` 는 **incremental update** (파일 해시 캐시로 LLM 재호출 없이 AST 만 재실행). Basic Memory `doctor` + `schema_infer/validate/diff` 는 **structural lint** (파일↔인덱스 정합성·스키마 드리프트). Cognee `improve` + LLM Wiki `Lint` 는 **semantic lint** (의미적 노후화·모순·orphan). 이 3분지는 `knowledge-lifecycle-operations` 후보 카드가 **3개 하위 차원** 을 필요로 함을 확정.
+
+**Cognee deep-dive — 두 가설 동시 반증, 새 4번째 분지 등장**
+
+`notes/techniques/cognee.md` 판정: **induction + (graph + vector + relational) 3중 + runtime (+ session→permanent bridging)**. 서베이 7종 그래프 RAG 클러스터의 1-hop 이웃. Deep-dive 는 **2건의 기존 가설을 동시에 반증**하고 1개의 새 구조를 드러냈다.
+
+- *`improve` = semantic lint 2번째 사례 **미성립** (결정적)*: 카드 이전 판은 Cognee `improve` 가 LLM Wiki `Lint Workflow` 와 개념 중첩이라고 **잠정 가정**했으나, src 분석이 이를 명확히 반증. `memify_pipelines/` 5파일 — `apply_feedback_weights.py`, `consolidate_entity_descriptions.py`, `create_triplet_embeddings.py`, `memify_default_tasks.py`, `persist_sessions_in_knowledge_graph.py` — 모두 **apply / consolidate / create / persist 동사**로 명명. `detect / validate / flag` 동사 0건. Docs `improve.md` 가 열거하는 기능은 *"feedback weight streaming + session QA permanent graph 승격 + entity description LLM 재합성 + triplet embedding"* 로 전부 **additive enrichment**. Orphan / contradiction / superseded claim / research gap 탐지 **전부 부재**. LLM Wiki `Lint Workflow` 의 4 category (orphan/superseded/missing concept/research gap) 중 **0개** 일치. → **semantic lint 는 LLM Wiki 단일 사례로 고정**, `knowledge-lifecycle-operations` 카드 carve-out (cell 당 2+ 사례 기준) 여전히 미충족.
+- *축 4 2번째 사례 **미성립***: Cognee 엣지에 confidence/reliability 필드 없음, honesty rule docs 내 언급 0건. Relational store 의 "documents ↔ chunks ↔ provenance" 링크는 **소스 traceability (source lineage)** — Graphify `EXTRACTED/INFERRED/AMBIGUOUS` 의 **edge-level epistemic tagging** 과 **다른 레이어의 문제**. Ontology 통합 시 `ontology_valid=True` boolean flag 가 존재하나 confidence score 가 아닌 검증 플래그라 축 4 의 약한 형태. → **축 4 Graphify 단일 사례 고정**.
+- *새 4번째 분지 — "Consolidation + feedback refinement"*: Cognee `improve` 는 기존 3분지(structural / semantic / incremental-update) 어디에도 속하지 않음. 세션 QA → permanent graph 승격, feedback weight streaming (positive 랭킹 가중·negative 감쇠), entity description LLM 재합성 — 이는 **"피드백 루프를 통한 knowledge 재조정"** 으로 Mem0 last-write-wins (충돌 해소) 와 Zep temporal invalidation (시간축 부가) 보다 정교한 consolidation 변종. `knowledge-lifecycle-operations` 카드의 4번째 하위 차원으로 carve-out 필요.
+
+Lint 는 이제 **4분지 × 복수 사례 매트릭스**로 정리:
+
+| 분지 | 1사례 | 2사례 (있다면) | 비고 |
+|---|---|---|---|
+| Structural lint (스키마/인덱스 정합성) | Basic Memory `schema_infer/validate/diff` + `doctor` | (대기) | 기계적 판정 |
+| Semantic lint (의미적 노후화/모순/orphan) | LLM Wiki `Lint Workflow` | (대기 — Cognee 는 **실패**) | LLM grader 필요 |
+| Incremental update (재추출 비용 통제) | Graphify `--update`/`--watch` | Basic Memory `sync --watch` (약한 사례) | 해시/타임스탬프 기반 |
+| Consolidation + feedback refinement (새 분지) | Cognee `improve` | (대기 — Letta MemFS 후보?) | 피드백 루프 필요 |
 
 ---
 
@@ -140,15 +157,27 @@ LLM Wiki 의 "가장 가까운 형제" 는 **단일 점이 아니라 3축 공간
 
 이 세 조합은 모두 서베이에 부재. 설계 공백이 곧 기회 영역.
 
-**4. 운영 프리미티브 분리 — 축 3종 밖의 공통 프리미티브**
+**4. 운영 프리미티브 분리 — 축 3종 밖의 공통 프리미티브 (4분지로 확장, Cognee deep-dive 후)**
 
-Lint/Refinement, Consolidation, Forgetting 은 축 1·2·3과 무관한 별개 운영 차원. Deep-dive 2건 이후 **Lint 는 3개 하위 차원** 으로 분화됨이 확정:
+Lint/Refinement, Consolidation, Forgetting 은 축 1·2·3과 무관한 별개 운영 차원. Deep-dive 3건 이후 **Lint/Refinement 는 4개 하위 차원** 으로 분화됨:
 
 - **Structural lint** — 스키마 정합성, 파일↔인덱스 동기화 드리프트 탐지. 예: Basic Memory `schema_infer/validate/diff` (v0.19.0, 2026-03-07), `basic-memory doctor` (v0.17.4, 2026-01-05). 기계적·결정적 판정 가능.
-- **Semantic lint** — 의미적 노후화, 모순, orphan, stale claim 탐지. 예: Cognee `improve`, LLM Wiki `Lint Workflow`. LLM 기반 판정 필요, 자동화에 Grader 신뢰성 이슈 동반(cf. `primitive-evaluator-optimizer-diffusion.md`).
-- **Incremental update** — 재추출 비용 통제, "바뀐 부분만" 재빌드. 예: Graphify `--update`·`--watch` (파일 해시 캐시 → LLM 호출 0회로 AST 만 재실행), Basic Memory `sync --watch`. Lint 라기보다 운영 최적화.
+- **Semantic lint** — 의미적 노후화, 모순, orphan, stale claim 탐지 (detect/validate/flag 동사). 예: **LLM Wiki `Lint Workflow` 단일 사례**. 이전 카드 판은 Cognee `improve` 를 2번째 사례로 잠정 등재했으나 Cognee deep-dive 로 반증 — `memify_pipelines/` 5파일 전부 apply/consolidate/create/persist 동사, detect 동사 0건. LLM 기반 판정 필요, 자동화에 Grader 신뢰성 이슈 동반(cf. `primitive-evaluator-optimizer-diffusion.md`). **2번째 사례 여전히 대기**.
+- **Incremental update** — 재추출 비용 통제, "바뀐 부분만" 재빌드. 예: Graphify `--update`·`--watch` (파일 해시 캐시 → LLM 호출 0회로 AST 만 재실행), Basic Memory `sync --watch`. Lint 라기보다 운영 최적화이지만 "오래된 산출물 감축" 기능을 공유.
+- **Consolidation + feedback refinement** (2026-04-21 Cognee deep-dive 로 새로 분기) — 피드백 루프를 통한 additive 재조정. 예: Cognee `improve` (feedback_weight streaming + 세션 QA → permanent graph 승격 + entity description LLM 재합성). *삭제·탐지 없이 덧붙이는* 방식이라 기존 3분지와 구조적으로 다름. 이보다 단순한 **consolidation 기본형** — Mem0 last-write-wins (충돌 해소), Zep temporal invalidation (시간축 부가), Basic Memory `move_note`·`edit_note` (수동 병합) — 는 feedback 루프 없는 consolidation 이므로 같은 분지 내 스펙트럼으로 볼 수 있음.
 
-Consolidation(Mem0 last-write-wins ↔ Zep temporal invalidation ↔ Basic Memory `move_note`·`edit_note`), Forgetting(TTL / graph invalidation / 파일 삭제) 도 별도 차원. 새 카드 후보: **knowledge-lifecycle-operations** — 3개 하위 차원(structural/semantic/incremental) × 3개 운영(lint/consolidation/forgetting) = 9-cell 매트릭스로 carve out 대기. 현재 Basic Memory(structural lint O, semantic X), Graphify(incremental update O, semantic X), LLM Wiki·Cognee(semantic O) 로 3분지 확정.
+Forgetting(TTL / graph invalidation / 파일 삭제) 은 별도 차원 유지 — 4분지 Lint/Refinement 모두 "유지·개선" 이고, forgetting 은 "소멸" 이라 성격이 다름.
+
+신규 카드 후보: **knowledge-lifecycle-operations** — 현재 매트릭스 상태:
+
+| 분지 | 확정 사례 | 2번째 사례 대기 |
+|---|---|---|
+| Structural lint | Basic Memory | Letta `alembic/` 마이그레이션? Cognee `memify_default_tasks`? |
+| Semantic lint | LLM Wiki | ??? (Cognee 실패 후 원점 복귀) |
+| Incremental update | Graphify | Basic Memory `sync --watch` (약한 사례) |
+| Consolidation + feedback | Cognee | Letta self-editing 피드백? Hermes self-improving loop? |
+
+Carve-out 조건: 각 cell 2+ 사례. 현재 모든 cell 이 1 (또는 약한 2). Cognee deep-dive 로 기존 carve-out 트리거(semantic lint 2번째 사례) 소멸 → **카드 작성 여전히 보류**. Letta deep-dive 가 다음 유력 트리거 (self-editing 피드백이 consolidation+feedback 의 2번째 사례 후보).
 
 **5. Builder 축의 경제적 해석**
 
@@ -159,15 +188,23 @@ Consolidation(Mem0 last-write-wins ↔ Zep temporal invalidation ↔ Basic Memor
 
 스케일(소스 수 × 질문 빈도) 이 작으면 curation 이 경제적, 커질수록 induction 이 유일 옵션이 됨. LLM Wiki 노트의 ~100 소스 붕괴점이 이 경제 논리의 수치 버전.
 
-**6. 축 4 후보 — 감사 가능성 (auditability) — 2026-04-21 등재, 1사례**
+**6. 축 4 후보 — 감사 가능성 (auditability) — 2026-04-21 등재, 1사례 고정 (Cognee 2번째 사례 실패)**
 
-Graphify 의 `EXTRACTED(1.0) / INFERRED(0.4–0.9) / AMBIGUOUS(0.1–0.3)` 의무 confidence 태깅 + *"Never invent an edge. If unsure, use AMBIGUOUS."* honesty rule 은 조사한 16개 데이터포인트 중 **단일 사례**. 다른 프레임워크는:
+Graphify 의 `EXTRACTED(1.0) / INFERRED(0.4–0.9) / AMBIGUOUS(0.1–0.3)` 의무 confidence 태깅 + *"Never invent an edge. If unsure, use AMBIGUOUS."* honesty rule 은 조사한 17개 데이터포인트 중 **단일 사례**. 특히 중요한 구분:
 
-- GraphRAG/LightRAG/HippoRAG/PathRAG/Cognee/Neo4j/nano-graphrag: 엣지 confidence 를 선택 필드로 두거나 없음.
+- GraphRAG/LightRAG/HippoRAG/PathRAG/**Cognee**/Neo4j/nano-graphrag: 엣지 confidence 를 선택 필드로 두거나 없음.
 - Mem0/Zep: 메모리/엣지에 reliability 스코어 명시 안 함.
 - LLM Wiki/Basic Memory: contradiction 플래그는 있으나 엣지 단위 confidence 없음.
 
-**축 4 promotion 조건**: 2번째 사례 발견 시 공식 축으로 승격. 현재는 후보. 이 축이 의미 있다면 "감사 없는 induction" 이 지형의 기본값이고 Graphify 가 그 반례인 셈 — 대부분의 프레임워크는 추출 결과를 **bit-level 정확성** 기준이 아닌 **유용성** 기준으로만 평가.
+**Cognee 의 "유사하지만 다른 것" 구분 (중요)** — deep-dive 시 자주 혼동될 수 있는 3개 레이어를 분리 기록:
+
+1. **Edge-level epistemic tagging** (축 4 정의): 각 엣지가 "얼마나 믿을 만한가" 를 명시. Graphify 의 3-tier.
+2. **Source lineage / provenance**: 각 정보가 "어디서 왔는가" 를 추적. Cognee relational store 의 "documents ↔ chunks ↔ provenance" 가 이 레이어.
+3. **Schema validation**: 엔티티가 "사전 정의 ontology 와 맞는가" 를 boolean 으로 검증. Cognee `ontology_valid` flag 가 이 레이어.
+
+레이어 2·3 은 중요한 운영 기능이지만 축 4 와 **다른 문제** — "어디서 왔는가" 는 알아도 "얼마나 믿을 만한가" 를 태깅하지 않으면 감사 가능성은 부재. 축 4 는 LLM 이 자기 추출 결과에 대해 **불확실성을 스스로 선언** 하도록 강제하는 설계 규율이고, 이는 여전히 Graphify 단일 사례.
+
+**축 4 promotion 조건**: 2번째 사례 발견 시 공식 축으로 승격. 탐색 후보: Hermes `self-improving loop` 내부 confidence, Letta memory block 의 신뢰도 메타, Anthropic Claude Memory 의 내부 스코어링 (재수집 필요), 그리고 GraphRAG `covariates` 필드 (spec 상 confidence 수용 가능, 실제 의무화는 안 됨). **현재는 1사례 고정** — 공식 축이 아닌 후보 상태 유지.
 
 **7. Tier 분류 — Cross-cutting skill 후보 (meta/harness_schema.md 영역)**
 
@@ -221,6 +258,7 @@ Phase 2 진입 시 사용자의 다른 프로젝트(예: 게임메이커, 다른
 - `notes/techniques/karpathy-llm-wiki.md` — 이 카드의 단일 표본 중심점. Wiki 의 축 1·2·3 위치는 (curation, markdown, compile-time). "커뮤니티 수용 — 한국어권" 섹션의 Graphify 포지셔닝 (2026-04-21 추가) 역시 이 설계 공간 해석에 기여.
 - `notes/techniques/basic-memory.md` — 2026-04-21 deep-dive. 3축 판정 = (co-authored, markdown+hybrid index, runtime). "가장 가까운 형제" 가설 재정의의 증거.
 - `notes/techniques/graphify.md` — 2026-04-21 deep-dive. 3축 판정 = (induction, KG+6표면 fan-out, compile-time). curation+KG 공백 재확증 + 축 4 후보(감사 가능성) 발견의 증거. cross-harness skill tier 후보의 1사례.
+- `notes/techniques/cognee.md` — 2026-04-21 deep-dive. 3축 판정 = (induction, graph+vector+relational 3중 hybrid, runtime + session→permanent bridging). **4번째 분지 "Consolidation + feedback refinement" 발견의 증거**. `memify_pipelines/` 5파일 동사 분석으로 기존 semantic lint 2번째 사례 가설 반증. 축 4 2번째 사례 후보였으나 provenance ≠ confidence 로 미성립.
 - `inbox/2026-04-21-graph-rag-survey.md` — 7종 primary source. 축 1 의 induction 편재 증거.
 - `inbox/2026-04-21-memory-pkm-survey.md` — 7종 primary source. 축 2 의 storage→UX 인과 체인 원 출처.
 - `inbox/2026-04-21-graphify-upstream.md` — Graphify upstream 식별 probe 결과. 사용자 로컬 스킬이 third-party 오픈소스의 설치본임을 확정.
@@ -240,12 +278,16 @@ Phase 2 진입 시 사용자의 다른 프로젝트(예: 게임메이커, 다른
 ### 2026-04-21 deep-dive 로 해소된 항목
 - ~~Basic Memory 내부 인덱스~~ → **해소**: SQLite FTS5 + FastEmbed vector hybrid (v0.19.0 / 2026-03-07 도입). primary markdown + secondary 인덱스 이중 구조로 판정.
 - ~~curation+KG 조합의 현실 구현체 (Graphify 후보)~~ → **해소 (반증)**: Graphify 는 induction + KG + compile-time 이라 서베이 7종 그래프 RAG 와 동일 좌표. curation+KG 공백 재확증.
-- ~~Cognee `improve` 구현~~ → **부분 해소**: Basic Memory `schema_infer/validate/diff` + `doctor` 와 Graphify `--update`·`--watch` 도입으로 Lint 3분지(structural / semantic / incremental) 확정. Cognee 자체 구현 세부는 여전히 미답 (Cognee deep-dive 대기).
+- ~~Cognee `improve` 구현~~ → **해소 (반증)**: `memify_pipelines/` 5파일 src 분석. apply/consolidate/create/persist 동사 only, detect/validate/flag 0건. `improve` 는 semantic lint 가 아니라 **"consolidation + feedback refinement"** 4번째 분지의 1사례. semantic lint 2번째 사례는 원점 복귀.
 
 ### 남은/새로 생긴 열린 질문
-- **축 4 promotion** — Graphify confidence 3-tier 의 2번째 사례. Hermes `self-improving loop` 에 confidence 가 있는지, OpenClaw gateway 의 에이전트 응답 로깅에 confidence 가 있는지 재확인 가치.
+- **축 4 promotion** — Graphify confidence 3-tier 의 2번째 사례. 탐색 후보: Hermes `self-improving loop` 내부 confidence 스코어링, Letta memory block 의 신뢰도 메타, Anthropic Claude Memory 의 내부 평가(재수집 필요), GraphRAG `covariates` 필드의 실제 활용도. **Cognee 는 후보에서 제외됨** (deep-dive 결과 provenance ≠ confidence).
+- **Semantic lint 2번째 사례** — Cognee 는 **미성립**. Zep fact invalidation 이 후보이나 "시간축 invalidation ≠ orphan/contradiction 탐지" 라 deep-dive 로 확인 필요. 기타 후보: Letta 내부 memory block 정리 루틴, 상업 에이전트 메모리의 내부 dedup (재수집 필요).
 - **Basic Memory 충돌 해소 정책** — `write_note` / `edit_note` 의 last-write-wins 인지 merge 인지 공식 문서 범위 외 (Basic Memory deep-dive 보고에서 미답 플래그).
-- **Letta MemFS 세부** — 축 2 가 관계형→markdown 으로 수렴 중인지 단일 사례로 판정 불가, 2번째 수렴 사례 발견 시 트렌드 확정. Letta deep-dive 필요.
+- **Letta MemFS 세부** — 축 2 가 관계형→markdown 으로 수렴 중인지 + self-editing 피드백이 consolidation+feedback 의 2번째 사례인지 단일 사례로 판정 불가. Letta deep-dive 가 다음 유력 트리거.
 - **"에피소딕 사실 vs 문서 자산"** 을 같은 축에 놓은 것의 타당성 — Mem0/Zep deep-dive 시 재평가. 현재까지 Basic Memory 는 **양쪽 단위가 markdown 파일 하나로 수렴**된 사례(사실 조각 = 짧은 observation 라인, 문서 자산 = 전체 파일) → "단위" 가 아닌 "밀도" 축일 가능성.
 - **Cross-harness skill tier 판정** — Graphify 1사례. 2번째 사례 (예: 다른 PKM/analysis skill 이 유사 분포를 갖는지) 발견 시 신규 tier 확정.
+- **세션 → 영속 bridging 패턴** — Cognee session cache → permanent graph 의 2번째 사례. Letta MemFS git-tracked, Basic Memory `sync --watch` 가 후보. 이 패턴이 "축 3 timing" 에 **2단 hybrid** 를 공식 서브값으로 추가해야 할지 판정.
+- **상용 + OSS dual-product 패턴** — Graphify + Penpax, Cognee + Dreamify 둘 다 OSS + 상용 튜너/클라우드 이원화. 경제 모델 관찰. 별도 카드 후보 아니면 이 카드 "경제적 해석" 섹션에 흡수할지 판정 대기.
 - **Graphify 31.4k stars 의 일자별 곡선** — star-history 주간 +1.1k 만 확보. 실제 피크 이벤트(Karpathy 트윗 2026-04-02 → PyPI v0.1.1 2026-04-04 → 어느 시점부터 급상승) 미답.
+- **Cognee 공식 벤치마크 수치** — 블로그 차트 이미지에 OCR 필요. Dreamify 튜너 성능/가격 세부 미답.
