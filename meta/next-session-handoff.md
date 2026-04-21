@@ -1,7 +1,7 @@
 ---
-date_recorded: 2026-04-21
-author_session: Knowledge-layer synthesis — 2 surveys + 3 deep-dives (Basic Memory / Graphify / Cognee) + primitive card (design-space 3 axes, axis-4 candidate, 4-branch lint matrix)
-phase: Phase 1 확장기 — tier 4종 + insights primitive 카드 갱신, Phase 2 graft 는 미진입
+date_recorded: 2026-04-21 (afternoon — Letta deep-dive + carve-out)
+author_session: Knowledge-layer synthesis 후속 — Letta deep-dive (4번째) → 두 분지 동시 임계 도달 → knowledge-lifecycle-operations.md 신규 카드 carve-out + primitive 카드 갱신 (수렴 cluster 첫 사례 + 축 4 sub-axis 후보 등재)
+phase: Phase 1 확장기 — 운영 차원 carve-out 완료, Phase 2 graft 진입 직전 검토 가능
 ---
 
 # 다음 세션 이어서 하기 — 핸드오프 메모
@@ -51,12 +51,13 @@ notes/
 - `feedback_codex_invocation_protocol.md` v1 → v2 (framing 교정: "codex 전체 비사용" → "sub-agent 내부만 구조적 금지")
 - 저장 위치: `C:\Users\kys90\.claude\projects\D--ClaudeCode-Projects-Bundle-Researcher-uuuSanAI-AISystemResearcher\memory\`
 
-## 현재 corpus 상태 (2026-04-20 기준)
-- **Deep-dive notes**: 14 harness + 1 agent-framework + 1 infra + 11 techniques = **27 건**
+## 현재 corpus 상태 (2026-04-21 오후 기준)
+- **Deep-dive notes**: 14 harness + 1 agent-framework + 1 infra + **12 techniques** = **28 건** (Letta 추가)
 - **Digests**: 1건 (2026-04-17 Anthropic sweep)
-- **Insight cards**: 5건 (primitive-*.md)
-- **Schema candidate axes**: Δ1~Δ5 + T, U, V, W + gateway-event-surface + side-channel = 10개 (+ META-tier confirmed)
+- **Insight cards**: **6건** (primitive-*.md 5건 + `knowledge-lifecycle-operations.md` 신규 carve-out)
+- **Schema candidate axes**: Δ1~Δ5 + T, U, V, W + gateway-event-surface + side-channel + audit-trail-vs-epistemic-confidence sub-axis 후보 = 11개 (+ META-tier confirmed)
 - **Folder tiers**: 4종 (harness / agents / infra / techniques) + 1 유휴 (llm)
+- **Knowledge-layer 매트릭스 안정도**: 4분지 중 2분지 (structural lint, consolidation+feedback) 임계 충족, 1분지 약한 2 (incremental update), 1분지 1 (semantic lint). primitive 카드 confidence: medium-high → **high**.
 
 ## 다음 세션 진입점 — 의사결정 분기
 
@@ -73,7 +74,30 @@ notes/
 - **Kilo `kilo run --auto` stdout JSON 스키마** — Δ5 promotion 판정 대기
 - **Graphify upstream 식별 + `techniques/graphify.md` deep-dive** — 2026-04-21 Brain Trinity YouTube 영상(`cNlvrU-KcRg`) 경유 발견. 사용자 로컬 스킬 `graphify-windows` (`~/.claude/skills/graphify/SKILL.md`) 존재하나 primary source upstream 불명. Karpathy LLM Wiki 와 짝인 knowledge-layer tooling — 그래프 navigation vs index.md navigation 두 노선 비교 가능. upstream(레포·저자) 식별이 선행 조건이라 1–2 probe 로 먼저 사전조사 후 deep-dive 진입 판단. 영상 관찰 결과는 `notes/techniques/karpathy-llm-wiki.md` "커뮤니티 수용 — 한국어권" 섹션에 이미 anchor.
 
-### 2026-04-21 추가 세션 (knowledge-layer synthesis + deep-dive 2건)
+### 2026-04-21 추가 세션 ②(오후) — Letta deep-dive + 카드 carve-out
+
+- **Letta deep-dive 완료** (`notes/techniques/letta.md`, 690줄): 4번째 knowledge-layer deep-dive. harness-analyzer Mode B 직접 fallback 으로 진행 (6 fetch round 모두 성공). **5개 검증 질문 결론**:
+  - **Q1 markdown 수렴 2번째 사례 → 확정**: MemFS = 진짜 git 레포 (`~/.letta/agents/<id>/memory`) + `.md` + frontmatter (description 필수, Anthropic SKILL.md 패턴). server `memory(...)` 도구를 **대체** (Letta Code 한정).
+  - **Q2 consolidation+feedback 2번째 사례 → 부분 확정**: 11+ self-editing 도구 (`core_memory_*`, `memory_*`, `archival_memory_*`, `memory_apply_patch` codex-style diff, `conversation_search`, `open/grep/semantic_search_files`). 두 종류 sleep-time 명확 구분 — server-side `enable_sleeptime` (multi-agent group) vs client-side `reflection` subagent (Letta Code, git worktree 비동기). Cognee `improve` 와 다른 위상 (단일 시스템 4-stage vs actor 분리 + git commit).
+  - **Q3 축 4 (감사 가능성) → 반증**: confidence/honesty rule 부재. git commit 은 약한 audit trail 이지만 Graphify edge confidence 와 다른 layer. 축 4 = **여전히 Graphify 단일 사례** + sub-axis 분리 후보 등장 (audit-trail vs epistemic confidence).
+  - **Q4 structural lint 2번째 사례 → 확정 (보너스)**: `/doctor` = `context_doctor` skill (changelog 0.19.8), *"Identify and repair degradation in system prompt, external memory, and skills"* — Basic Memory `doctor` 와 어휘 1:1 일치. 4-step 절차 (identify → plan → commit → recompile).
+  - **Q5 세션→영속 bridging 2번째 사례 → 부분 확정**: Cognee 2-tier (cache→graph) vs Letta 4-tier (live→summary→archival→blocks/MemFS). 추상 패턴 공유, 위상 다름. 축 3 timing 의 *"hybrid bridging"* sub-value 정당화.
+  - **두 가지 Letta 좌표 동시 점유**: server `(self-editing, hybrid 4-tier blocks/files/archival/RAG, runtime + 4-tier descending)` + Letta Code MemFS `(self-editing, markdown primary + git secondary, runtime + git commit)`.
+  - **메인 세션 codex 위임 후보 3건** (비-차단): alembic migration 자동 vs 명시 정책 / MemFS git push 실패 fallback (`memoryGit.ts`) / reflection git worktree 격리 메커니즘.
+- **신규 카드 carve-out** (`insights/knowledge-lifecycle-operations.md`, 325줄): 두 분지 (structural lint + consolidation+feedback) 동시 임계 도달이 carve-out 트리거. **4분지 매트릭스 안정화**:
+  - structural lint: Basic Memory `doctor` + Letta `/doctor` (2 사례 → 임계 충족)
+  - semantic lint: LLM Wiki `Lint Workflow` (1 사례, Cognee `improve` 는 src 동사 분석으로 반증)
+  - incremental update: Graphify `--update` (1 강한 + Basic Memory `sync --watch` 약한 2)
+  - consolidation+feedback: Cognee `improve` + Letta `reflection` (2 사례, 다른 위상)
+  - **분지 판정 결정 트리**: src 의 동사 (apply/consolidate/create/persist vs detect/validate/flag vs verify/repair vs update/rebuild) 가 결정적 신호. docs 의 마케팅 어휘는 신뢰 불가 (Cognee `improve` 가 결정적 사례).
+  - **Forgetting** 은 carve-out 카드 외부 별도 차원 (소멸 vs 유지).
+  - **직교성 주장** = 중간 confidence (5 데이터포인트, (storage, lint 분지) 약한 상관 관찰).
+- **primitive-knowledge-layer-design-space.md 갱신** (293 → 301줄): confidence medium-high → **high**. 데이터포인트 17 → 18. 핵심 변경:
+  - **(builder, storage) 평면의 첫 수렴 cluster 등재**: Basic Memory + Letta MemFS + LLM Wiki = (builder 다른) markdown primary 좌표 3 데이터포인트. SKILL.md 패턴 차용으로 frontmatter 어휘까지 정렬되는 2차 수렴 (Anthropic Agent Skills 가 attractor).
+  - **운영 프리미티브 분리 섹션 carve-out**: 본문은 짧은 reference 로 축소, detail 은 신규 카드 참조.
+  - **축 4 후보 4-layer 구분 갱신**: epistemic / provenance / schema validation / **change history (Letta git commit 이 등재시킨 신규 layer)**. sub-axis 분리 후보 (audit-trail vs epistemic confidence) 등재.
+  - **잠재 신규 카드 후보 3건 등재**: `forget-strategies` / `oss-dual-product-economics` (Letta+Letta Cloud 가 3사례 도달) / `audit-trail-vs-epistemic-confidence`.
+- **sources.md 갱신**: Letta 항목 신규 등록 (Apache-2.0, server v0.16.7 + Letta Code v0.22.4, MemFS 0.15.0 도입, carve-out 트리거 도달 마커).
 
 - **서베이 2건 저장**: `inbox/2026-04-21-graph-rag-survey.md` (7종 graph RAG), `inbox/2026-04-21-memory-pkm-survey.md` (7종 memory/PKM). 14 프레임워크 primary docs 스캔 수준.
 - **Graphify upstream 식별 완료**: `inbox/2026-04-21-graphify-upstream.md`. upstream = `github.com/safishamsi/graphify` (MIT, PyPI `graphifyy` v0.4.23, 2026-04-04 첫 릴리스). 사용자 로컬 `-windows` 는 upstream 의 `--platform windows` 설치 표식, fork 아님. Phase 1 external research 대상 확정.
@@ -109,22 +133,30 @@ notes/
 - `.claude/agents/harness-analyzer.md` 에 Mode B 추가된 후 실전 검증 1회 완료 (이번 OpenClaw main-session 경로) — 추후 sub-agent 호출 시 Mode B 실제 발동 모니터링 필요
 - analyzer 의 `axes_added_local` vs 글로벌 `candidate_axis_promotion` 동기화 프로세스 미정립 — 스키마가 커질수록 필요해짐
 
-## 재진입 시 빠른 오리엔테이션 순서 (2026-04-21 갱신)
-1. 이 파일 읽기 — 특히 "2026-04-21 추가 세션" 블록 (위)
-2. `insights/primitive-knowledge-layer-design-space.md` TL;DR + "구성 요소" 섹션 (3축 + 축 4 후보 + 4분지 Lint)
-3. `notes/techniques/cognee.md` 의 "`improve` operation 심층 — 판정 = NO" 섹션 — 가설 반증 근거의 결정적 예시
-4. `meta/harness_schema.md` 끝부분 "Candidate additions" 훑기 (cross-harness-skill tier 후보 추가 검토)
+## 재진입 시 빠른 오리엔테이션 순서 (2026-04-21 오후 갱신)
+1. 이 파일 읽기 — 특히 "2026-04-21 추가 세션 ②(오후)" 블록 (위)
+2. `insights/primitive-knowledge-layer-design-space.md` TL;DR + "Letta deep-dive" 단락 + "축 4 후보" 섹션 (3축 + 수렴 cluster + sub-axis 분리 후보)
+3. `insights/knowledge-lifecycle-operations.md` 전체 — **신규 carve-out 카드, 4분지 매트릭스 + 분지 판정 결정 트리 + actor 위상 spectrum**
+4. `notes/techniques/letta.md` 의 "5개 검증 질문 결론 표" 섹션 — 두 좌표 점유 + carve-out 트리거 발화 핵심
 5. 아래 다음 세션 추천 읽고 방향 선택
 
-## 권고 — 다음 세션 첫 추천 (2026-04-21 갱신)
+## 권고 — 다음 세션 첫 추천 (2026-04-21 오후 갱신)
 
-**최상위: Letta deep-dive** (`notes/techniques/letta.md` 신규). 이중 트리거 가능성 — (a) 축 2 markdown 수렴의 2번째 사례 (MemFS git-tracked 가 정말 markdown 쪽으로 수렴 중인지), (b) `knowledge-lifecycle-operations` 카드의 "consolidation + feedback refinement" 분지 2번째 사례 (self-editing 피드백 루프가 Cognee improve 와 구조적으로 공유되는지). 두 트리거 중 하나라도 발동하면 primitive 카드 승격 또는 신규 카드 carve-out 시작.
+**최상위: Mem0 deep-dive** (`notes/techniques/mem0.md` 신규). 4분지 매트릭스의 잔존 1사례 분지 두 개(semantic lint, incremental update) 동시 후보. Mem0 가 가장 가능성 높은 이유:
+- *semantic lint 2번째 사례 후보*: Mem0 의 `arbitration` 로직 (last-write-wins) 이 detection 단계를 거치는지 확인 — 거친다면 detect/validate/flag 동사 발견으로 semantic lint 분지 임계 충족.
+- *forget 차원 강한 사례*: TTL 기반 자동 감쇠가 Cognee/Letta 와 다른 메커니즘이라 forget-strategies 카드 carve-out 후보 데이터.
+- *induction + 벡터 + runtime 좌표의 가장 직접적 사례*: 서베이만 한 마지막 큰 미커버 좌표. 본 카드의 "induction+벡터+runtime 으로 뭉친 관성" 주장의 결정적 증거 또는 반례.
+- 이중 트리거 가능성: semantic lint 임계 도달 시 4분지 중 3분지가 임계 충족 → matrix 안정도 medium-high → high 로 강화.
 
-**대안 A**: Zep/Graphiti deep-dive — temporal invalidation 이 semantic lint 2번째 사례로 성립하는지 판정. 이 쪽은 "시간축 invalidation ≠ orphan 탐지" 라 조건부이므로 Letta 보다 리턴 낮을 가능성.
+**대안 A**: Zep/Graphiti deep-dive — temporal invalidation 이 semantic lint 2번째 사례로 성립하는지 판정. Mem0 보다 조건부 ("시간축 invalidation ≠ orphan 탐지" 갈림길) 이지만 temporal KG 단일 사례라 카드 다양성 측면에서 가치. incremental update 강한 사례 가능성도 있음 (bi-temporal 인덱스 갱신 비용 통제).
 
-**대안 B**: Phase 2 진입 — primitive 카드가 medium-high confidence 에 도달했으므로 사용자 다른 프로젝트에 graft 평가 시작 가능. 단 semantic lint·축 4 단일 사례 문제가 해소 안 됐으므로 primitive 카드가 완결 상태는 아님. Letta 한 번 더 돌리고 Phase 2 가는 게 자연스러움.
+**대안 B**: Hermes deep-dive 보강 — `self-improving loop` 의 confidence 스코어링 (축 4 epistemic 2번째 사례 후보) + skill-generation 이 consolidation+feedback 3번째 사례인지. 축 4 promotion 의 가장 가까운 후보. 단 Hermes 노트가 이미 일부 작성됐으므로 follow-up probe 형태가 적절.
 
-**대안 C**: 기존 "infra tier 2번째 entry" (AgentMail 또는 Claude Cowork) 재개 — 2026-04-20 원래 handoff 의 1순위 권고. knowledge-layer 흐름을 잠시 끊고 gateway-event-surface 축 promotion 으로 환승. corpus 의 폭 확보 관점에선 여전히 유효.
+**대안 C**: Phase 2 graft-evaluator 진입 — primitive 카드가 high confidence + 신규 카드 carve-out 완료 + 데이터포인트 18. 사용자 다른 프로젝트(gamemaker)에 graft 평가 시작 가능. 단 semantic lint 잔존 1 사례 + 축 4 단일 사례 문제가 해소 안 됐으므로 카드가 완전 안정화 상태는 아님. Mem0 한 번 더 돌리고 Phase 2 가는 게 자연스러움 — 그러나 *"카드 완결 perfectionism"* 함정 경계 (Phase 2 에서 graft 평가가 카드의 한계를 더 잘 드러낼 수도).
+
+**대안 D**: 다른 후보 카드 carve-out — `forget-strategies` (5 메커니즘 × 5 시스템 매트릭스 채우기, 데이터 부분 확보) 또는 `oss-dual-product-economics` (Graphify+Penpax, Cognee+Dreamify, Letta+Letta Cloud 3사례 도달, carve-out 가능). 현재 carve-out 모멘텀 활용 의의는 있지만, primitive 카드 안정화 우선이라 우선순위 낮음.
+
+**대안 E**: 기존 "infra tier 2번째 entry" (AgentMail 또는 Claude Cowork) 재개 — 2026-04-20 원래 handoff 의 1순위 권고. knowledge-layer 흐름을 잠시 끊고 gateway-event-surface 축 promotion 으로 환승. corpus 의 폭 확보 관점에선 여전히 유효, knowledge-layer 모멘텀 활용 가치 vs corpus 다양성 trade-off.
 
 ---
 
