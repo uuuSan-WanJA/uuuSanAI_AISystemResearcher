@@ -71,6 +71,26 @@ notes/
 - **Hermes gossip/ACP 재확인** — developer-guide/architecture 깊은 페이지 probe. 만약 primary source 에서 정말 없다면 SEO 글들이 완전 오정보였음을 확정.
 - **OMO Hashline 벤치마크** (Grok Code Fast 1: 6.7% → 68.3% 주장) — 재현성 확인
 - **Kilo `kilo run --auto` stdout JSON 스키마** — Δ5 promotion 판정 대기
+- **Graphify upstream 식별 + `techniques/graphify.md` deep-dive** — 2026-04-21 Brain Trinity YouTube 영상(`cNlvrU-KcRg`) 경유 발견. 사용자 로컬 스킬 `graphify-windows` (`~/.claude/skills/graphify/SKILL.md`) 존재하나 primary source upstream 불명. Karpathy LLM Wiki 와 짝인 knowledge-layer tooling — 그래프 navigation vs index.md navigation 두 노선 비교 가능. upstream(레포·저자) 식별이 선행 조건이라 1–2 probe 로 먼저 사전조사 후 deep-dive 진입 판단. 영상 관찰 결과는 `notes/techniques/karpathy-llm-wiki.md` "커뮤니티 수용 — 한국어권" 섹션에 이미 anchor.
+
+### 2026-04-21 추가 세션 (knowledge-layer synthesis + deep-dive 2건)
+
+- **서베이 2건 저장**: `inbox/2026-04-21-graph-rag-survey.md` (7종 graph RAG), `inbox/2026-04-21-memory-pkm-survey.md` (7종 memory/PKM). 14 프레임워크 primary docs 스캔 수준.
+- **Graphify upstream 식별 완료**: `inbox/2026-04-21-graphify-upstream.md`. upstream = `github.com/safishamsi/graphify` (MIT, PyPI `graphifyy` v0.4.23, 2026-04-04 첫 릴리스). 사용자 로컬 `-windows` 는 upstream 의 `--platform windows` 설치 표식, fork 아님. Phase 1 external research 대상 확정.
+- **신규 insight 카드**: `insights/primitive-knowledge-layer-design-space.md` — builder/storage/timing 3축 프레임. **2026-04-21 deep-dive 2건 반영 후 갱신**: confidence medium→medium-high, 축 4 후보(감사 가능성) 등재, Lint 3분지 확정, 축 2 재해석(primary+secondary 벡터), cross-harness skill tier 후보.
+- **Deep-dive 완료 2건**:
+  - `notes/techniques/basic-memory.md` (~260줄) — 3축: `co-authored + markdown+hybrid(SQLite FTS5 + FastEmbed) + runtime`. LLM Wiki 와 storage 1축만 일치 → "가장 가까운 형제" 가설 재정의. Lint = structural only (`schema_infer/validate/diff` + `doctor`). 미답: 충돌 해소 정책.
+  - `notes/techniques/graphify.md` (~?줄) — 3축: `induction + KG+6표면 fan-out + compile-time`. **curation+KG 공백 안 메움** → 공백 재확증. 축 4 후보 확보: `EXTRACTED(1.0)/INFERRED(0.4–0.9)/AMBIGUOUS(0.1–0.3)` 의무 confidence + *"Never invent an edge"* honesty rule. 10+ 하네스 동시 지원 → cross-harness skill tier 후보 1사례. PyPI v0.1.1 2026-04-04 (Karpathy 트윗 2026-04-02 → 48h 정합), 17일 만에 31.4k stars (재검증됨, 일자별 곡선은 미답).
+- **재수집 필요** (상태 유지): Anthropic Claude Memory 공식 페이지 (404 리다이렉트), ChatGPT Memory FAQ (403), Cognition Devin's Wiki 세부. 상업 메모리 3종 source thin 상태.
+- **Deep-dive 다음 후보 우선순위 (업데이트)**:
+  1. ~~Basic Memory~~ → **완료**
+  2. ~~Graphify~~ → **완료** (원래 handoff 에선 대기 항목이었으나 이번 세션에 실행)
+  3. **Cognee** — `remember/recall/forget/improve` 4-op API. `improve` 실제 구현이 semantic lint 2번째 확정 사례가 될지 판정.
+  4. **Letta (MemFS 중심)** — "git-tracked memory" 가 markdown 쪽 수렴 신호인지 확인.
+  5. **Zep/Graphiti** — temporal invalidation (bi-temporal KG) 이 본 지형 단독 축.
+- **공백 영역 실험 후보 (상태 유지)**: curation+KG 조합은 Graphify deep-dive 로 **메우지 못함을 확증**. 이 프로젝트 자체 `notes/` 위에 Graphify 를 실제로 돌려보는 건 여전히 유효한 self-test (Graphify 는 induction 이라 이 프로젝트 corpus 에 돌리면 자동 추출 그래프가 생성됨. curation 된 `notes/` 를 입력으로 induction 하는 경우, 출력이 curated source 에 대한 2차 induction 인 특이 케이스).
+- **후속 카드 후보 (상세화)**: `knowledge-lifecycle-operations` — 3 하위 차원(structural / semantic / incremental-update) × 3 운영(lint / consolidation / forgetting) = 9-cell 매트릭스. 각 cell 별 1+ 사례 확보됨 (primitive 카드의 "관련 primitive 카드" 섹션 참조). Carve-out 시점: cell 별 2+ 사례. Cognee deep-dive 가 트리거 가능성 높음.
+- **Tier 체계 변경 후보**: `skills/` 또는 `cross-cutting/` 신규 tier. Graphify 1사례. `meta/harness_schema.md` META-tier 축에 기록. 2번째 사례 대기.
 
 ### 분기 3: 횡단 분석 (digest / insight)
 - **"Personal assistant gateways" 축 digest**: OpenClaw (single-user) vs openwork (team) vs Claude Cowork (상업 team) 비교
