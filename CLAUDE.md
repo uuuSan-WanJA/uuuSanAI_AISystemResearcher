@@ -21,3 +21,35 @@
 ## 구조
 
 상세 구조·워크플로는 `README.md` 참고. 템플릿은 `templates/`, 소스 레지스트리는 `sources.md`.
+
+## 외부 도구: YouTube 영상 처리
+
+사용자 메시지에 YouTube 링크(`youtube.com/watch`, `youtu.be/`, `youtube.com/shorts/`)가 포함되면 **기본 동작으로 Gemini API를 호출해 영상 내용을 추출**한다. 사용자가 "요약해줘" 라고 명시하지 않아도 자동 수행.
+
+**중요 — 사용 방법:**
+Gemini CLI(`gemini -p "... <URL>"`)는 URL을 프롬프트 텍스트로만 전달해서 영상을 실제로 받지 못한다 (모델이 "외부 사이트 접속 불가" 응답). **반드시 아래 헬퍼 스크립트를 통해 Gemini REST API의 `file_data.file_uri` 경로로 호출**할 것.
+
+```bash
+# 기본 프롬프트(핵심 주장·타임스탬프·고유명사·인용 추출)
+python scripts/yt-gemini.py "<YouTube URL>"
+
+# 다른 각도가 필요하면 2번째 인자로 프롬프트 오버라이드
+python scripts/yt-gemini.py "<URL>" "편집/카메라워크 스타일만 짚어줘"
+
+# 짧은 영상·빠른 확인엔 flash로 (비용↓)
+GEMINI_MODEL=gemini-2.5-flash python scripts/yt-gemini.py "<URL>"
+```
+
+- API 키는 `~/.gemini/.env` 에 저장되어 있음 (스크립트가 자동 로드, 별도 export 불필요)
+- 기본 모델 `gemini-2.5-pro`, `GEMINI_MODEL` 환경변수로 오버라이드 가능
+- 긴 영상(>30분)은 2단계로: ① 큰 챕터 단위 요약 → ② 관심 구간 재질의
+- 호출 전 사용자에게 **어떤 각도로 추출할지 한 줄 예고** — 사용자가 방향을 바로 조정할 수 있게
+
+**예외 — API 호출하지 말 것:**
+- 사용자가 "링크만 `sources.md`에 등록" 처럼 요약 불필요를 명시한 경우
+- 영상이 1차 소스가 아닌 단순 레퍼런스로 지나가는 맥락
+- 사용자가 트랜스크립트를 직접 붙여넣은 경우 (중복 호출 방지)
+
+**폴백:**
+- API 호출 실패(권한/연령제한/지역락/쿼터 등) 시 WebFetch로 페이지 메타데이터만 확보하고 사용자에게 상황 보고 후 다음 행동 확인
+- 결과가 1차 소스로 쓰이면 하네스/프로젝트 노트에 영상 URL + 추출 날짜(오늘 날짜) + 사용 모델명 병기
