@@ -1,7 +1,7 @@
 ---
-date_recorded: 2026-04-20
-author_session: Trend harness expansion + tier system + two infra-layer fixes
-phase: Phase 1 확장기 — corpus 가 harness 한 계층에서 tier 4종 구조로 확장됨
+date_recorded: 2026-04-21
+author_session: Knowledge-layer synthesis — 2 surveys + 3 deep-dives (Basic Memory / Graphify / Cognee) + primitive card (design-space 3 axes, axis-4 candidate, 4-branch lint matrix)
+phase: Phase 1 확장기 — tier 4종 + insights primitive 카드 갱신, Phase 2 graft 는 미진입
 ---
 
 # 다음 세션 이어서 하기 — 핸드오프 메모
@@ -109,17 +109,22 @@ notes/
 - `.claude/agents/harness-analyzer.md` 에 Mode B 추가된 후 실전 검증 1회 완료 (이번 OpenClaw main-session 경로) — 추후 sub-agent 호출 시 Mode B 실제 발동 모니터링 필요
 - analyzer 의 `axes_added_local` vs 글로벌 `candidate_axis_promotion` 동기화 프로세스 미정립 — 스키마가 커질수록 필요해짐
 
-## 재진입 시 빠른 오리엔테이션 순서
-1. 이 파일 읽기
-2. `meta/harness_schema.md` 끝부분 "Candidate additions" 훑기 (현재 후보 축 10개 상태 확인)
-3. `notes/infra/openclaw.md` TL;DR 읽기 — infra tier 가 왜 load-bearing 인지 한 번에 파악
-4. `notes/agents/hermes.md` 의 "✅ Main-session verification" 블록 읽기 — agent-framework tier 의 첫 사례
-5. 위 분기 1~4 중 어느 쪽으로 갈지 사용자에게 질의
+## 재진입 시 빠른 오리엔테이션 순서 (2026-04-21 갱신)
+1. 이 파일 읽기 — 특히 "2026-04-21 추가 세션" 블록 (위)
+2. `insights/primitive-knowledge-layer-design-space.md` TL;DR + "구성 요소" 섹션 (3축 + 축 4 후보 + 4분지 Lint)
+3. `notes/techniques/cognee.md` 의 "`improve` operation 심층 — 판정 = NO" 섹션 — 가설 반증 근거의 결정적 예시
+4. `meta/harness_schema.md` 끝부분 "Candidate additions" 훑기 (cross-harness-skill tier 후보 추가 검토)
+5. 아래 다음 세션 추천 읽고 방향 선택
 
-## 권고 — 다음 세션 첫 추천
-**분기 1의 infra tier 2번째 entry** (AgentMail 또는 Anthropic Claude Cowork) — gateway-event-surface 축 promotion 확보를 우선 처리. 그 후 분기 3의 "personal assistant gateways" digest 쓰면 corpus 에 tier-cross-cutting 통찰이 쌓임.
+## 권고 — 다음 세션 첫 추천 (2026-04-21 갱신)
 
-대안: 분기 4의 Phase 2 graft-evaluator 로 아예 Phase 2 개시. 단, corpus 확장이 아직 진행 중이라 디저트보다 메인을 먼저 마무리하는 게 자연스러움.
+**최상위: Letta deep-dive** (`notes/techniques/letta.md` 신규). 이중 트리거 가능성 — (a) 축 2 markdown 수렴의 2번째 사례 (MemFS git-tracked 가 정말 markdown 쪽으로 수렴 중인지), (b) `knowledge-lifecycle-operations` 카드의 "consolidation + feedback refinement" 분지 2번째 사례 (self-editing 피드백 루프가 Cognee improve 와 구조적으로 공유되는지). 두 트리거 중 하나라도 발동하면 primitive 카드 승격 또는 신규 카드 carve-out 시작.
+
+**대안 A**: Zep/Graphiti deep-dive — temporal invalidation 이 semantic lint 2번째 사례로 성립하는지 판정. 이 쪽은 "시간축 invalidation ≠ orphan 탐지" 라 조건부이므로 Letta 보다 리턴 낮을 가능성.
+
+**대안 B**: Phase 2 진입 — primitive 카드가 medium-high confidence 에 도달했으므로 사용자 다른 프로젝트에 graft 평가 시작 가능. 단 semantic lint·축 4 단일 사례 문제가 해소 안 됐으므로 primitive 카드가 완결 상태는 아님. Letta 한 번 더 돌리고 Phase 2 가는 게 자연스러움.
+
+**대안 C**: 기존 "infra tier 2번째 entry" (AgentMail 또는 Claude Cowork) 재개 — 2026-04-20 원래 handoff 의 1순위 권고. knowledge-layer 흐름을 잠시 끊고 gateway-event-surface 축 promotion 으로 환승. corpus 의 폭 확보 관점에선 여전히 유효.
 
 ---
 
