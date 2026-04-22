@@ -1,10 +1,46 @@
 ---
-date_recorded: 2026-04-21 (afternoon — Letta deep-dive + carve-out)
-author_session: Knowledge-layer synthesis 후속 — Letta deep-dive (4번째) → 두 분지 동시 임계 도달 → knowledge-lifecycle-operations.md 신규 카드 carve-out + primitive 카드 갱신 (수렴 cluster 첫 사례 + 축 4 sub-axis 후보 등재)
-phase: Phase 1 확장기 — 운영 차원 carve-out 완료, Phase 2 graft 진입 직전 검토 가능
+date_recorded: 2026-04-22 (Claude Design / gpt-image-2 design-layer twin launches)
+author_session: 디자인-레이어 양대 랩 쌍둥이 런칭 — Claude Design (04-17) + gpt-image-2/"Duct Tape" (04-21) 딥다이브 각 1건 + 비교 digest 1건 + `primitive-format-native-curation` carve-out. Knowledge-layer 플로우 일시 중단, 제품-레이어 최신 동향 흡수. Phase 2 graft 대기 상태 유지.
+phase: Phase 1 확장기 — 제품-레이어 coverage 확장. Knowledge-layer 후속 (Mem0/Zep/Graphiti) 은 다음 세션으로 이월.
 ---
 
 # 다음 세션 이어서 하기 — 핸드오프 메모
+
+## 2026-04-22 세션 — 디자인 레이어 쌍둥이 런칭
+
+**작성물 (4건, 총 1,740+줄)**:
+1. `notes/harness/claude-design.md` (429줄 → SKILL.md probe 추가로 +~30줄) — Anthropic Labs Claude Design 딥다이브. Opus 4.7 substrate, tar+README handoff bundle, `frontend-design` 스킬 productization, Krieger 사임(04-14)→런칭(04-17) 타이밍.
+2. `notes/harness/gpt-image-2.md` (480줄) — OpenAI gpt-image-2 / "Duct Tape" 딥다이브. Instant/Thinking 2-mode split, Arena +242 대 Nano Banana 2, fal.ai + Azure Foundry day-0 GA, architecture 비공개.
+3. `digests/2026-04-22-design-layer-twin-launches.md` (262줄) — 양 런칭 구조적 비교. 레이어 다름 (product-vertical vs foundation-horizontal), 텍스트 렌더링 moat collapse, "thinking before drawing" 새 contract, handoff surface 가 실질 경쟁축.
+4. `insights/primitive-format-native-curation.md` (신규 카드) — 커뮤니티 큐레이션이 "프롬프트 문자열 → 포맷-네이티브 primitive 번들" 로 시프트. confidence: medium (독립 사례 1.5건). Primitive surface 풍부한 제품에서만 발생하는 조건부 패턴.
+
+**핵심 발견**:
+- **Claude Design handoff bundle = prompt-handoff glue** (tar + README + chat transcript). Figma 의 JSON-manifest 와 철학적 정반대 — Claude Code 가 "재현".
+- **`frontend-design` SKILL.md 구조적 역설**: 스킬이 homogenization 을 *명시적으로* 금지하지만 (anti-pattern 블록 + "NEVER converge on Space Grotesk"), 실제 Claude Design 출력은 여전히 "container soup" 수렴. **Prompt-level 지시 < training-data 기본값**. Anthropic 이 model-level 로 해결해야 할 문제일 가능성.
+- **텍스트 렌더링 moat 18개월 collapse**: Ideogram (전문) → Recraft #1 (AR 아키텍처) → gpt-image-2 99%+CJK. 단일 축 전문 벤더 moat 이 foundation capability 점프 1회에 흡수된 드문 사례.
+- **한국어 early-signal 채널 등재**: choi.openai / @aisocity / qjc.ai (Threads). 영어권 tech press 대비 평균 12~48h 빠름. sources.md Candidates 섹션에 3건 등록.
+
+**스키마 진전**:
+- 신규 축 후보 **"curation-primitive-surface-richness"** (`primitive-format-native-curation.md`) — 2 사례 (Claude Code vs gpt-image-2). 3번째 promotion 시 검증.
+- Δ1 subtype 후보 **"skill-productization"** (`frontend-design` → Claude Design). 2번째 사례 대기.
+- **"user-visible vs vendor-hidden mode split"** 신규 축 후보 — OpenAI Instant/Thinking + Anthropic extended thinking. 2 사례 확보, 3번째 (Google Gemini toggle?) 대기.
+- **"Arena-as-prelaunch-stealth-QA"** 신규 축 후보 — gpt-image-2 "Duct Tape" + Anthropic Opus anonymous 시기 + Google Nano Banana prelaunch. 3 사례 *추정* (primary evidence 각각 확인 필요).
+
+**sources.md 갱신**:
+- Active 4건 추가: Claude Design (announcement + Help Center), gpt-image-2 (API docs + blog), Anthropic News 계열, 각 deep-dive 레퍼런스.
+- Candidates 9건 추가: Simon Willison (promote 후보), fal.ai, Victor Dibia newsletter, Sam Henri Gold blog, Neuron Daily, choi.openai / @aisocity / qjc.ai (Threads), rohitg00/awesome-claude-design + ZeroLu/awesome-gpt-image.
+
+**미처리 / 다음 세션 후보**:
+- **Mem0 deep-dive** (2026-04-21 recommend 이월) — knowledge-layer 4분지 매트릭스 안정화의 잔존 분기 2개 동시 후보. 여전히 최상위.
+- **`frontend-design` cookbook 깊이 파기** — `anthropics/claude-cookbooks/blob/main/coding/prompting_for_frontend_aesthetics.ipynb` 미확보. longer-form 가이드의 실제 내용이 SKILL.md 의 역설 (homogenization 금지 vs 관찰된 수렴) 을 해결하는 구체 recipe 를 제공하는지 확인 필요. 0.5 round probe 로 가능.
+- **Arena-as-prelaunch-stealth-QA 3번째 사례 검증** — 각 사례의 primary evidence 1개씩 확보 후 carve-out. 0.5~1 round probe.
+- **Figma 의 Claude Design 대응 제품 공개** 시기 모니터링 — "design tool 카테고리가 LLM 의 thin UI 로 붕괴" 가설의 falsifier.
+
+---
+
+## 이전 세션 기록 (2026-04-21 오후 — 아래는 아카이브)
+
+
 
 ## 이번 세션(2026-04-19~04-20) 진행 완료
 
